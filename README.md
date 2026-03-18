@@ -2,6 +2,8 @@
 
 Um intérprete de contexto social para pessoas neurodivergentes (autismo, TDAH, ansiedade social), que transforma mensagens e situações confusas em explicações claras e opções seguras de resposta.
 
+Site para teste - https://brnpessoa14.github.io/social-interpreter/
+
 ## 🚀 Visão do Produto
 O **Social Interpreter** é uma ferramenta de apoio para decodificar subtexto, ironia, indiretas e "regras não ditas" em conversas do dia a dia. Focado especialmente nos ambientes acadêmico e profissional, o app ajuda a reduzir a ansiedade social e evitar mal-entendidos.
 
