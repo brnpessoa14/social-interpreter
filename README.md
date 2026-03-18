@@ -19,7 +19,7 @@ A[Usuário acessa a aplicação] --> B[Tela inicial: Escolhe 'Interpretar situa�
 B --> C[Tela de entrada: Seleciona relação e descreve a situação]    
 C --> D[Opcional: Informa sentimento e objetivo]    
 D --> E[Usuário clica em 'Interpretar situação']    
-E --> F[Front-end envia dados para IA (Groq)]    
+E --> F[Front-end envia dados para IA Groq]    
 F --> G[IA analisa tom, intenção e contexto]    
 G --> H[Tela de resultado: Tradução social + expectativa + sugestões]    
 H --> I[Usuário copia resposta ou interpreta outra situação]
