@@ -1,4 +1,4 @@
-# 🧠 Social Interpreter — Inteligência Artificial para Acessibilidade Cognitiva
+## Social Interpreter — Inteligência Artificial para Acessibilidade Cognitiva
 
 > **Documentação Técnica e de Negócio — Protótipo de Co-piloto de Habilidades Sociais para Neurodivergentes.**
 
@@ -7,12 +7,12 @@
 
 ---
 
-## 📖 1. Visão Geral (Executive Summary)
+## 1. Visão Geral (Executive Summary)
 O **Social Interpreter** é uma solução de Tecnologia Assistiva desenvolvida para auxiliar adultos neurodivergentes (Autismo Nível 1, TDAH e indivíduos com Ansiedade Social) na decodificação de nuances comunicativas no cotidiano. O projeto utiliza métodos avançados de Processamento de Linguagem Natural (NLP) e visão computacional para mitigar o burnout social caudado pelo "masking" e facilitar a inserção ativa de indivíduos em ambientes acadêmicos e corporativos.
 
 ---
 
-## 🛠️ 2. PRD — Product Requirements Document
+## 2. PRD — Product Requirements Document
 
 ### 2.1. O Problema (Problem Statement)
 Estima-se que até 20% da população mundial possua algum grau de neurodivergência. A comunicação humana é baseada em 70% de tons não literais (ironia, implícitos, linguagem corporal simulada em texto). Para quem processa informações de forma literal ou analítica, essa "zona cinzenta" gera ansiedade, paralisia por análise e mal-entendidos constantes com figuras de autoridade (chefes, professores).
@@ -36,7 +36,7 @@ Estima-se que até 20% da população mundial possua algum grau de neurodivergê
 
 ---
 
-## 🗺️ 3. Fluxo de Processamento (Diagrama Mermaid)
+## 3. Fluxo de Processamento (Diagrama Mermaid)
 
 Abaixo, descrevemos o fluxo lógico do sistema, desde a entrada multissensorial até a entrega da recomendação social:
 
@@ -62,7 +62,7 @@ flowchart TD
 
 ---
 
-## 🏗️ 4. Arquitetura Técnica e Métodos de IA
+## 4. Arquitetura Técnica e Métodos de IA
 
 Para atender às demandas académicas de performance e aplicação, implementamos:
 
@@ -73,7 +73,7 @@ Para atender às demandas académicas de performance e aplicação, implementamo
 
 ---
 
-## 📈 5. Análise de Mercado e Viabilidade de Negócio
+## 5. Análise de Mercado e Viabilidade de Negócio
 
 Como parte do planejamento de um produto sustentável, identificamos as seguintes avenidas de crescimento:
 
@@ -105,7 +105,7 @@ A precificação de R$ 29,90 foi desenhada com base em três motivadores psicol�
 
 ---
 
-## 📊 6. Roadmap de Evolução
+## 6. Roadmap de Evolução
 
 1.  **Curto Prazo (Extensão de Navegador)**: Levar o motor do Social Interpreter para dentro do WhatsApp Web, LinkedIn e Slack, oferecendo sugestões "em tempo real" na caixa de digitação.
 2.  **Médio Prazo (App Mobile/Teclado)**: Desenvolvimento de um teclado customizado para iOS/Android que sugere tons de resposta durante a escrita.
@@ -113,7 +113,7 @@ A precificação de R$ 29,90 foi desenhada com base em três motivadores psicol�
 
 ---
 
-## 👥 7. Equipe de Desenvolvimento
+## 7. Equipe de Desenvolvimento
 *   Bruno Pessoa
 *   Gabriel de Santi
 *   Guilherme Bastos
