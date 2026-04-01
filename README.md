@@ -85,6 +85,24 @@ Enquanto o ChatGPT é uma ferramenta generalista, o **Social Interpreter** é fo
 2.  **Licenciamento Educacional (B2B)**: Universidades compram licenças para prover aos alunos neurodivergentes como ferramenta de acessibilidade acadêmica.
 3.  **Licenciamento Corporativo (ESG/DE&I)**: Venda para empresas que possuem programas de inclusão de talentos neurodivergentes no RH.
 
+### 5.3. Modelo de Receita e Estratégia de Venda (Go-to-Market)
+O Social Interpreter opera sob um modelo **SaaS (Software as a Service)** híbrido, com foco na recorrência e na redução da fricção de entrada:
+
+1.  **Plano Freemium (Aquisição)**: Oferece até 3 análises de texto diárias e acesso à "Tradução Social" básica. Serve como porta de entrada para demonstrar o valor da ferramenta.
+2.  **Plano Individual PRO (Retenção)**: 
+    *   **Quanto pagar**: R$ 29,90/mês.
+    *   **O que destrava**: Análises ilimitadas, entrada multimodal (Áudio/Print/PDF) e ajustes de personalidade da IA.
+3.  **Plano Enterprise & ESG (Escalabilidade)**: 
+    *   **Foco**: Empresas com programas de Diversidade e Inclusão (D&I).
+    *   **Modelo**: Licenciamento por assento (seat-based). O RH paga uma conta anual para que colaboradores neurodivergentes tenham a ferramenta como benefício corporativo.
+
+### 5.4. Motivadores de Compra (Por que as pessoas pagam?)
+A precificação de R$ 29,90 foi desenhada com base em três motivadores psicológicos e práticos:
+
+*   **Segurança de Carreira e Acadêmica**: O custo de um mal-entendido com um gestor ou professor pode ser a perda de um emprego ou uma reprovação. O valor da assinatura é insignificante comparado ao "seguro de comunicação" que a ferramenta oferece.
+*   **Redução da Carga Cognitiva**: Neurodivergentes gastam horas tentando decifrar uma única mensagem. Ao pagar pela ferramenta, o usuário está **comprando tempo e saúde mental**, reduzindo o esgotamento (burnout) causado pelo esforço constante de interpretar subtextos.
+*   **Autonomia e Independência**: A eliminação da necessidade de pedir a terceiros (amigos ou familiares) para "revisar" e-mails ou mensagens sensíveis devolve ao indivíduo sua autonomia comunicativa.
+
 ---
 
 ## 📊 6. Roadmap de Evolução
