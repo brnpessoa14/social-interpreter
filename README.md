@@ -74,7 +74,8 @@ Com o amadurecimento técnico do produto, o objetivo principal atual é evoluir 
 Para que a percepção de valor aumente e justifique as vias de monetização, o produto deve evoluir para além de um simples "tradutor de única via", tornando-se um **Co-piloto Pessoal de Habilidades Sociais**:
 
 *   **Histórico e Relatório Pessoal de Evolução:** Salvar as análises de conversas passadas atreladas a tags e fornecer um dashboard demonstrando o progresso na interpretação autônoma.
-*   **Integrações Contextuais (Teclados Mobile / Extensões):** Levar o intérprete para onde a conversa acontece (WhatsApp, iMessage, Slack ou Extensões de Navegador).
+*   **Extensão de Navegador Dedicada (Chrome/Edge/Firefox):** Transformar o Social Interpreter em uma camada ativa que analisa mensagens em tempo real no WhatsApp Web, Slack, Discord e LinkedIn, oferecendo tradução social e sugestões de resposta instantâneas sem a necessidade de sair da aba da conversa.
+*   **Integrações Mobile (Teclados Customizados):** Levar o intérprete para onde a conversa acontece em dispositivos móveis (WhatsApp, iMessage, Slack).
 *   **Ajuste de Personalidade do "Copiloto":** Treinar a IA para moldar sugestões de resposta de acordo com a área do usuário (ex: ser mais assertivo no ambiente corporativo).
 *   **Sintetização de Voz para Treinamento de Prosódia:** Ajudar o usuário a entender as nuances vocais das sugestões de resposta utilizando modelos de IA generativa de voz.
 
