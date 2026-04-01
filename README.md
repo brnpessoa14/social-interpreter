@@ -87,7 +87,7 @@ Enquanto o ChatGPT é uma ferramenta generalista, o **Social Interpreter** é fo
 
 ---
 
-## 📊 6. Roadmap de Evolução (H2/24 - H1/25)
+## 📊 6. Roadmap de Evolução
 
 1.  **Curto Prazo (Extensão de Navegador)**: Levar o motor do Social Interpreter para dentro do WhatsApp Web, LinkedIn e Slack, oferecendo sugestões "em tempo real" na caixa de digitação.
 2.  **Médio Prazo (App Mobile/Teclado)**: Desenvolvimento de um teclado customizado para iOS/Android que sugere tons de resposta durante a escrita.
@@ -96,11 +96,10 @@ Enquanto o ChatGPT é uma ferramenta generalista, o **Social Interpreter** é fo
 ---
 
 ## 👥 7. Equipe de Desenvolvimento
-*   [Nome do Líder/Integrante 1]
-*   [Nome do Integrante 2]
-*   [Nome do Integrante 3]
-*   [Nome do Integrante 4]
+*   Bruno Pessoa
+*   Gabriel de Santi
+*   Guilherme Bastos
+*   Jota
+*   Fernando
 
 ---
-**Documentação integrante do portfólio acadêmico para a disciplina de Métodos e Aplicações de IA.**
-*Desenvolvido com o compromisso de tornar a tecnologia um meio para a inclusão social.*
