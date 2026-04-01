@@ -1,0 +1,132 @@
+* {
+            font-family: 'Lexend', sans-serif;
+        }
+
+        .apple-blur {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2364748b' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.75rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        @keyframes shimmer {
+            0% {
+                transform: translateX(-100%);
+            }
+
+            100% {
+                transform: translateX(200%);
+            }
+        }
+
+        @keyframes pulse-dot {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.3;
+            }
+        }
+
+        @keyframes progress-bar {
+            0% {
+                width: 0%;
+            }
+
+            30% {
+                width: 40%;
+            }
+
+            60% {
+                width: 70%;
+            }
+
+            85% {
+                width: 88%;
+            }
+
+            100% {
+                width: 95%;
+            }
+        }
+
+        .animate-progress {
+            animation: progress-bar 8s ease-out forwards;
+        }
+
+        .animate-pulse-dot {
+            animation: pulse-dot 1.4s ease-in-out infinite;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 0.5s ease-out forwards;
+        }
+
+        .fade-in-up-1 {
+            animation: fadeInUp 0.5s ease-out 0.1s both;
+        }
+
+        .fade-in-up-2 {
+            animation: fadeInUp 0.5s ease-out 0.25s both;
+        }
+
+        .fade-in-up-3 {
+            animation: fadeInUp 0.5s ease-out 0.4s both;
+        }
+
+        .mood-btn.selected {
+            background-color: #136dec;
+            color: white;
+            border-color: #136dec;
+        }
+
+        .goal-item.selected {
+            border-color: #136dec;
+            background-color: rgba(19, 109, 236, 0.05);
+        }
+
+        .goal-item.selected .goal-icon {
+            background-color: #136dec;
+            color: white;
+        }
+
+        .goal-item.selected .goal-label {
+            font-weight: 600;
+        }
+
+        .copy-btn:active {
+            transform: scale(0.95);
+        }
+
+        .hero-gradient {
+            background: linear-gradient(135deg, rgba(19, 109, 236, 0.08) 0%, rgba(19, 109, 236, 0.02) 50%, transparent 100%);
+        }
