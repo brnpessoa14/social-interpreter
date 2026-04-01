@@ -80,11 +80,11 @@ Este projeto foi concebido sob princípios éticos rigorosos:
 ---
 
 ## 👥 Equipe do Projeto
-*   [Nome do Integrante 1]
-*   [Nome do Integrante 2]
-*   [Nome do Integrante 3]
-*   [Nome do Integrante 4]
+*   Bruno Pessoa
+*   Gabriel de Santi
+*   Guilherme Bastos
+*   Jota
+*   Fernando
 
 ---
 **Trabalho desenvolvido no âmbito da disciplina de Métodos e Aplicações de IA.**
-*Para parcerias ou contato acadêmico: [Seu e-mail ou do grupo]*
