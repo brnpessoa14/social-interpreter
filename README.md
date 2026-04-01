@@ -1,4 +1,4 @@
-# 🧠 Social Interpreter — Mensagens Claras, Mentes Calmas.
+# Social Interpreter — Mensagens Claras, Mentes Calmas.
 
 > **Protótipo de co-piloto de inteligência social projetado para apoiar a comunicação neurodivergente.**
 
@@ -8,14 +8,14 @@
 
 ---
 
-## 🌟 Visão Geral do Projeto
+## Visão Geral do Projeto
 O **Social Interpreter** é um projeto de Tecnologia Assistiva que aplica métodos avançados de Inteligência Artificial para auxiliar adultos neurodivergentes (Autismo, TDAH, Ansiedade Social). Nosso objetivo é reduzir o custo cognitivo da comunicação moderna através da análise automatizada de contexto e tom.
 
 Este trabalho foca na implementação prática de modelos de linguagem de larga escala (LLMs) e ferramentas de extração multimodal para transformar incertezas sociais em orientações acionáveis.
 
 ---
 
-## 🚀 Problema e Solução Proposta
+## Problema e Solução Proposta
 
 ### O Problema
 Estima-se que **15% a 20% da população mundial** possua algum tipo de neurodivergência. No ambiente acadêmico e corporativo, a dificuldade em interpretar subtextos e ironias gera paralisia por análise e exaustão mental (burnout). 
@@ -28,7 +28,7 @@ Desenvolvemos uma interface minimalista e funcional que atua como um tradutor de
 
 ---
 
-## 🛠️ Métodos e Aplicações de IA (Stack Técnica)
+## Métodos e Aplicações de IA (Stack Técnica)
 
 Neste projeto, priorizamos a latência mínima e o processamento de ponta utilizando a seguinte arquitetura:
 
@@ -43,7 +43,7 @@ Neste projeto, priorizamos a latência mínima e o processamento de ponta utiliz
 
 ---
 
-## 📈 Análise de Viabilidade Social e Econômica
+## Análise de Viabilidade Social e Econômica
 
 Como parte da documentação de projeto, realizamos uma análise de como esta aplicação poderia ser sustentada como um serviço real:
 
@@ -62,7 +62,7 @@ Como parte da documentação de projeto, realizamos uma análise de como esta ap
 
 ---
 
-## 🗺️ Roadmap e Evoluções Futuras
+## Roadmap e Evoluções Futuras
 
 Planejamos a evolução deste protótipo em três fases principais:
 
@@ -72,14 +72,14 @@ Planejamos a evolução deste protótipo em três fases principais:
 
 ---
 
-## 🛡️ Ética, Segurança e Privacidade
+## Ética, Segurança e Privacidade
 Este projeto foi concebido sob princípios éticos rigorosos:
 *   **Privacidade por Design**: No atual estágio, nenhum dado pessoal de texto ou áudio é persistido em servidores externos (processamento efêmero).
 *   **Foco Assistivo**: A ferramenta atua como suporte e **não substitui** acompanhamento profissional clínico.
 
 ---
 
-## 👥 Equipe do Projeto
+## Equipe do Projeto
 *   Bruno Pessoa
 *   Gabriel de Santi
 *   Guilherme Bastos
