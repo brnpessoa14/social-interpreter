@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Social Interpreter — Entenda o que não foi dito</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+        rel="stylesheet" />
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: { "primary": "#8b5cf6", "background-light": "#fdf8ff", "background-dark": "#1e1b4b" },
+                    fontFamily: { "display": ["Lexend", "sans-serif"] },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+</head>
+
+<body class="bg-background-light text-slate-900 min-h-screen flex flex-col">
+
+    <!-- ==================== SCREEN 1: LANDING ==================== -->
+    <div id="screen-landing" class="screen active flex-col min-h-screen">
+        <header class="w-full border-b border-primary/10 bg-background-light/80 p-4 sm:p-6 flex items-center justify-between">
+            <div class="w-auto sm:w-[120px]"></div> <!-- Spacer for center alignment -->
+            <div class="flex items-center gap-3 justify-center">
+                <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary text-white shadow-md">
+                    <span class="material-symbols-outlined text-2xl">translate</span>
+                </div>
+                <span class="text-xl sm:text-2xl font-bold tracking-tight text-slate-800">Social Interpreter</span>
+            </div>
+            <div class="w-auto sm:w-[120px] flex justify-end">
+                <button onclick="goToScreen('screen-pricing')" class="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm font-semibold text-primary bg-primary/10 px-3 sm:px-4 py-2 rounded-full hover:bg-primary/20 transition-all">
+                    <span class="material-symbols-outlined text-base">workspace_premium</span>
+                    <span class="hidden sm:inline">Planos</span>
+                </button>
+            </div>
+        </header>
+
+        <main class="flex-1 flex flex-col items-center justify-center p-6 text-center hero-gradient">
+            <h1 class="text-4xl sm:text-5xl font-extrabold text-slate-800 max-w-2xl leading-tight mb-6">
+                Entenda o que as pessoas <span class="text-primary">querem dizer</span>
+            </h1>
+            <p class="text-lg text-slate-600 max-w-xl mb-12">
+                Nós traduzimos conversas confusas ou de duplo sentido em explicações diretas. 
+                <br>Sem julgamentos.
+            </p>
+            <button onclick="goToScreen('screen-entry')"
+                class="h-16 rounded-full bg-primary px-10 text-xl font-bold text-white shadow-xl shadow-primary/30 hover:bg-primary/90 transition-all active:scale-95 flex items-center gap-3">
+                <span class="material-symbols-outlined">play_arrow</span>
+                Começar
+            </button>
+            <div class="mt-8 text-slate-400 text-sm flex items-center gap-2">
+                <span class="material-symbols-outlined text-lg">psychology</span>
+                Interface simplificada e direta
+            </div>
+        </main>
+    </div>
+
+    <!-- ==================== SCREEN 2: ENTRY ==================== -->
+    <div id="screen-entry" class="screen flex-col min-h-screen">
+        <header class="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/80 apple-blur">
+            <div class="max-w-[1200px] mx-auto px-6 h-16 flex items-center justify-between">
+                <button onclick="goToScreen('screen-landing')"
+                    class="flex items-center gap-2 text-primary hover:opacity-80 transition-opacity font-medium">
+                    <span class="material-symbols-outlined">arrow_back_ios_new</span>
+                    <span class="hidden sm:inline">Início</span>
+                </button>
+                <div class="flex items-center gap-2">
+                    <div class="size-8 bg-primary rounded-lg flex items-center justify-center text-white">
+                        <span class="material-symbols-outlined text-xl">translate</span>
+                    </div>
+                    <h1 class="text-lg font-semibold tracking-tight">Nova Situação</h1>
+                </div>
+                <div class="w-10"></div>
+            </div>
+        </header>
+
+        <main class="flex-1 flex items-center justify-center p-6 py-12">
+            <div class="w-full max-w-[560px]">
+                <!-- Step indicator -->
+                <div class="flex items-center justify-center gap-3 mb-8">
+                    <div class="flex items-center gap-2">
+                        <div
+                            class="h-7 w-7 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center">
+                            1
+                        </div>
+                        <span class="text-sm font-semibold text-primary">Situação</span>
+                    </div>
+                    <div class="h-px w-8 bg-slate-200"></div>
+                    <div class="flex items-center gap-2">
+                        <div
+                            class="h-7 w-7 rounded-full bg-slate-200 text-slate-500 text-xs font-bold flex items-center justify-center">
+                            2</div>
+                        <span class="text-sm font-medium text-slate-400">Contexto</span>
+                    </div>
+                    <div class="h-px w-8 bg-slate-200"></div>
+                    <div class="flex items-center gap-2">
+                        <div
+                            class="h-7 w-7 rounded-full bg-slate-200 text-slate-500 text-xs font-bold flex items-center justify-center">
+                            3</div>
+                        <span class="text-sm font-medium text-slate-400">Resultado</span>
+                    </div>
+                </div>
+
+                <div class="bg-white border border-slate-200 rounded-2xl shadow-xl shadow-slate-200/50 overflow-hidden">
+                    <div class="p-8 space-y-8">
+                        <div class="space-y-2">
+                            <h2 class="text-2xl font-bold tracking-tight">Detalhes da conversa</h2>
+                            <p class="text-slate-500">Preencha as informações abaixo para começar.</p>
+                        </div>
+                        <form id="entry-form" class="space-y-6" onsubmit="return false;">
+                            <div class="space-y-3">
+                                <label class="block text-sm font-semibold text-slate-700" for="recipient">
+                                    Com quem você está falando?
+                                </label>
+                                <div class="relative">
+                                    <select id="recipient" name="recipient"
+                                        class="w-full h-12 px-4 bg-slate-50 border-0 ring-1 ring-slate-200 rounded-xl focus:ring-2 focus:ring-primary transition-all text-slate-900 font-medium pr-10">
+                                        <option disabled selected value="">Selecione uma opção...</option>
+                                        <option value="Professor">Professor</option>
+                                        <option value="Chefe">Chefe</option>
+                                        <option value="Colega">Colega</option>
+                                        <option value="Família">Família</option>
+                                        <option value="Amigo">Amigo</option>
+                                        <option value="Desconhecido">Desconhecido / Outro</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="space-y-3">
+                                <label class="block text-sm font-semibold text-slate-700" for="message">
+                                    O que foi dito ou aconteceu?
+                                </label>
+                                
+                                <!-- Abas: Texto / Áudio / Arquivo -->
+                                <div class="flex gap-1 p-1 bg-slate-100 rounded-xl mb-3 overflow-x-auto" style="scrollbar-width: none;">
+                                    <button type="button" id="tab-text" onclick="switchInputType('text')" class="flex-1 py-3 px-2 text-xs sm:text-sm font-bold bg-white text-primary rounded-lg shadow-sm transition-all flex justify-center items-center gap-1.5 whitespace-nowrap">
+                                        <span class="material-symbols-outlined text-base">text_fields</span> Texto
+                                    </button>
+                                    <button type="button" id="tab-voice" onclick="switchInputType('voice')" class="flex-1 py-3 px-2 text-xs sm:text-sm font-bold text-slate-500 hover:text-slate-700 rounded-lg transition-all flex justify-center items-center gap-1.5 whitespace-nowrap">
+                                        <span class="material-symbols-outlined text-base">mic</span> Falar
+                                    </button>
+                                    <button type="button" id="tab-file" onclick="switchInputType('file')" class="flex-1 py-3 px-2 text-xs sm:text-sm font-bold text-slate-500 hover:text-slate-700 rounded-lg transition-all flex justify-center items-center gap-1.5 whitespace-nowrap">
+                                        <span class="material-symbols-outlined text-base">upload_file</span> Enviar Arquivo
+                                    </button>
+                                </div>
+
+                                <!-- Text Input -->
+                                <div id="input-text-container" class="relative">
+                                    <textarea id="message" name="message" rows="6"
+                                        placeholder="Cole a mensagem aqui..."
+                                        class="w-full p-4 bg-slate-50 border-0 ring-1 ring-slate-200 rounded-xl focus:ring-2 focus:ring-primary transition-all text-slate-900 placeholder:text-slate-400 resize-none"></textarea>
+                                </div>
+
+                                <!-- Voice Input (Mic) -->
+                                <div id="input-voice-container" class="hidden flex-col items-center justify-center p-8 bg-slate-50 ring-1 ring-slate-200 rounded-xl gap-4">
+                                    <button type="button" id="mic-btn" onclick="toggleRecording()" class="w-20 h-20 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center shadow-md hover:bg-slate-300 transition-all">
+                                        <span class="material-symbols-outlined text-4xl">mic</span>
+                                    </button>
+                                    <p id="mic-status" class="text-sm font-medium text-slate-600">Toque aqui para falar direto no microfone</p>
+                                    <p id="voice-transcript-preview" class="text-sm text-slate-500 italic text-center hidden w-full bg-white p-3 rounded-lg border border-slate-200 shadow-sm min-h-[50px]"></p>
+                                </div>
+
+                                <!-- File Upload Input -->
+                                <div id="input-file-container" class="hidden flex-col items-center justify-center p-8 bg-slate-50 ring-1 ring-slate-200 rounded-xl gap-4">
+                                    <label for="generic-upload" class="w-20 h-20 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center shadow-md hover:bg-slate-300 transition-all cursor-pointer">
+                                        <span class="material-symbols-outlined text-4xl">cloud_upload</span>
+                                    </label>
+                                    <input type="file" id="generic-upload" accept="audio/*,image/*,.pdf" class="hidden" onchange="handleGenericUpload(event)">
+                                    <p id="file-upload-status" class="text-sm font-medium text-slate-600 text-center">Fotos (Print), PDFs ou Áudios</p>
+                                    <p id="file-transcript-preview" class="text-sm text-slate-500 italic text-center hidden w-full bg-white p-3 rounded-lg border border-slate-200 shadow-sm min-h-[50px]"></p>
+                                </div>
+
+                                <div class="flex items-center gap-1.5 px-1 mt-2">
+                                    <span class="material-symbols-outlined text-sm text-slate-400">lock</span>
+                                    <p class="text-xs text-slate-400 font-medium">As informações são privadas. Ninguém mais terá acesso.</p>
+                                </div>
+                            </div>
+
+                            <div id="entry-error"
+                                class="hidden bg-red-50 border border-red-200 rounded-xl p-3 text-sm text-red-600 font-medium">
+                            </div>
+
+                            <div class="pt-2">
+                                <button type="button" onclick="goToContextScreen()"
+                                    class="w-full h-12 bg-primary hover:bg-primary/90 text-white font-bold rounded-xl shadow-lg shadow-primary/20 transition-all flex items-center justify-center gap-2 group">
+                                    Continuar
+                                    <span
+                                        class="material-symbols-outlined text-lg group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="mt-8 flex justify-center items-center gap-3 opacity-60">
+                    <div class="size-2 rounded-full bg-primary"></div>
+                    <div class="size-2 rounded-full bg-slate-300"></div>
+                    <div class="size-2 rounded-full bg-slate-300"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- ==================== SCREEN 3: CONTEXT CONFIG ==================== -->
+    <div id="screen-context" class="screen flex-col min-h-screen">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div
+                class="max-w-md w-full bg-white shadow-2xl shadow-primary/5 rounded-2xl overflow-hidden border border-slate-200/60">
+                <header class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+                    <button onclick="goToScreen('screen-entry')"
+                        class="flex items-center justify-center p-2 rounded-full hover:bg-slate-100 transition-colors">
+                        <span class="material-symbols-outlined text-slate-500">arrow_back_ios_new</span>
+                    </button>
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-widest text-slate-400 text-center">Passo 2 de 2
+                        </p>
+                        <p class="text-xs text-slate-400 text-center">Configuração</p>
+                    </div>
+                    <button onclick="goToScreen('screen-landing')"
+                        class="flex items-center justify-center p-2 rounded-full hover:bg-slate-100 transition-colors">
+                        <span class="material-symbols-outlined text-slate-500">close</span>
+                    </button>
+                </header>
+
+                <div class="p-6 sm:p-8 space-y-10">
+                    <!-- Mood -->
+                    <section class="space-y-6">
+                        <div class="text-center space-y-2">
+                            <h2 class="text-2xl font-bold tracking-tight">Como você se sente?</h2>
+                            <p class="text-slate-500 text-sm">Selecione seu estado emocional atual (opcional).</p>
+                        </div>
+                        <div class="flex flex-wrap justify-center gap-3" id="mood-buttons">
+                            <button
+                                class="mood-btn px-5 py-2.5 rounded-full bg-slate-100 hover:bg-primary/10 hover:text-primary transition-all text-sm font-medium text-slate-700 border border-transparent hover:border-primary/20"
+                                data-mood="Ansioso" onclick="selectMood(this)">😰 Ansioso</button>
+                            <button
+                                class="mood-btn px-5 py-2.5 rounded-full bg-slate-100 hover:bg-primary/10 hover:text-primary transition-all text-sm font-medium text-slate-700 border border-transparent hover:border-primary/20"
+                                data-mood="Confuso" onclick="selectMood(this)">😕 Confuso</button>
+                            <button
+                                class="mood-btn px-5 py-2.5 rounded-full bg-slate-100 hover:bg-primary/10 hover:text-primary transition-all text-sm font-medium text-slate-700 border border-transparent hover:border-primary/20"
+                                data-mood="Preocupado" onclick="selectMood(this)">😟 Preocupado</button>
+                            <button
+                                class="mood-btn px-5 py-2.5 rounded-full bg-slate-100 hover:bg-primary/10 hover:text-primary transition-all text-sm font-medium text-slate-700 border border-transparent hover:border-primary/20"
+                                data-mood="Com raiva" onclick="selectMood(this)">😤 Com raiva</button>
+                            <button
+                                class="mood-btn px-5 py-2.5 rounded-full bg-slate-100 hover:bg-primary/10 hover:text-primary transition-all text-sm font-medium text-slate-700 border border-transparent hover:border-primary/20"
+                                data-mood="Neutro" onclick="selectMood(this)">😐 Neutro</button>
+                        </div>
+                    </section>
+
+                    <!-- Goal -->
+                    <section class="space-y-6">
+                        <div class="text-center space-y-2">
+                            <h2 class="text-2xl font-bold tracking-tight">O que você quer alcançar?</h2>
+                            <p class="text-slate-500 text-sm">Escolha seu objetivo principal (opcional).</p>
+                        </div>
+                        <div class="space-y-3" id="goal-items">
+                            <div class="goal-item relative flex items-center p-4 cursor-pointer rounded-xl border border-slate-200 hover:bg-slate-50 transition-all"
+                                onclick="selectGoal(this, 'Entender melhor o que aconteceu')">
+                                <div class="flex items-center gap-4 flex-1">
+                                    <div
+                                        class="goal-icon w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary transition-all">
+                                        <span class="material-symbols-outlined">lightbulb</span>
+                                    </div>
+                                    <span class="goal-label text-base font-medium text-slate-700">Entender melhor</span>
+                                </div>
+                                <div
+                                    class="goal-check w-5 h-5 rounded border border-slate-300 flex items-center justify-center transition-all">
+                                    <span class="material-symbols-outlined text-sm text-white hidden">check</span>
+                                </div>
+                            </div>
+                            <div class="goal-item relative flex items-center p-4 cursor-pointer rounded-xl border border-slate-200 hover:bg-slate-50 transition-all"
+                                onclick="selectGoal(this, 'Resolver a situação e responder adequadamente')">
+                                <div class="flex items-center gap-4 flex-1">
+                                    <div
+                                        class="goal-icon w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary transition-all">
+                                        <span class="material-symbols-outlined">check_circle</span>
+                                    </div>
+                                    <span class="goal-label text-base font-medium text-slate-700">Resolver a
+                                        situação</span>
+                                </div>
+                                <div
+                                    class="goal-check w-5 h-5 rounded border border-slate-300 flex items-center justify-center transition-all">
+                                    <span class="material-symbols-outlined text-sm text-white hidden">check</span>
+                                </div>
+                            </div>
+                            <div class="goal-item relative flex items-center p-4 cursor-pointer rounded-xl border border-slate-200 hover:bg-slate-50 transition-all"
+                                onclick="selectGoal(this, 'Pedir desculpas ou me explicar')">
+                                <div class="flex items-center gap-4 flex-1">
+                                    <div
+                                        class="goal-icon w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary transition-all">
+                                        <span class="material-symbols-outlined">volunteer_activism</span>
+                                    </div>
+                                    <span class="goal-label text-base font-medium text-slate-700">Pedir desculpas / me
+                                        explicar</span>
+                                </div>
+                                <div
+                                    class="goal-check w-5 h-5 rounded border border-slate-300 flex items-center justify-center transition-all">
+                                    <span class="material-symbols-outlined text-sm text-white hidden">check</span>
+                                </div>
+                            </div>
+                            <div class="goal-item relative flex items-center p-4 cursor-pointer rounded-xl border border-slate-200 hover:bg-slate-50 transition-all"
+                                onclick="selectGoal(this, 'Dizer não de forma educada e assertiva')">
+                                <div class="flex items-center gap-4 flex-1">
+                                    <div
+                                        class="goal-icon w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary transition-all">
+                                        <span class="material-symbols-outlined">cancel</span>
+                                    </div>
+                                    <span class="goal-label text-base font-medium text-slate-700">Dizer não
+                                        educadamente</span>
+                                </div>
+                                <div
+                                    class="goal-check w-5 h-5 rounded border border-slate-300 flex items-center justify-center transition-all">
+                                    <span class="material-symbols-outlined text-sm text-white hidden">check</span>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <footer class="p-6 border-t border-slate-100 flex gap-4">
+                    <button onclick="goToScreen('screen-entry')"
+                        class="flex-1 px-6 py-3 rounded-xl border border-slate-200 text-slate-600 font-semibold text-sm hover:bg-slate-50 transition-colors">
+                        Voltar
+                    </button>
+                    <button onclick="startAnalysis()"
+                        class="flex-[2] px-6 py-3 rounded-xl bg-primary text-white font-semibold text-sm shadow-xl shadow-primary/30 hover:bg-primary/90 transition-all flex items-center justify-center gap-2">
+                        <span>Interpretar</span>
+                        <span class="material-symbols-outlined text-lg">auto_awesome</span>
+                    </button>
+                </footer>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== SCREEN 4: LOADING ==================== -->
+    <div id="screen-loading" class="screen flex-col min-h-screen items-center justify-center bg-background-light">
+        <div class="flex flex-col items-center text-center gap-6 px-6">
+            <div class="relative">
+                <span class="material-symbols-outlined text-primary text-5xl"
+                    style="animation: pulse-dot 1.5s ease-in-out infinite;">auto_awesome</span>
+            </div>
+            <div class="space-y-3">
+                <h1 class="text-3xl md:text-4xl font-semibold tracking-tight text-slate-900">Analisando o contexto...
+                </h1>
+                <p class="text-slate-500 text-lg font-light">Buscando a melhor interpretação para você.</p>
+            </div>
+            <div class="w-full max-w-[320px] flex flex-col gap-4">
+                <div class="relative h-1.5 w-full bg-slate-200 rounded-full overflow-hidden">
+                    <div id="loading-bar" class="absolute left-0 top-0 h-full bg-primary rounded-full animate-progress">
+                    </div>
+                </div>
+                <div class="flex items-center justify-center gap-3">
+                    <span class="flex h-2 w-2 rounded-full bg-primary animate-pulse-dot"></span>
+                    <p id="loading-status" class="text-slate-400 text-sm font-medium tracking-wide uppercase">
+                        Processando
+                        informações</p>
+                </div>
+            </div>
+            <div class="mt-12">
+                <p class="text-slate-300 text-xs font-medium tracking-[0.2em] uppercase">Social Interpreter AI</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== SCREEN 5: RESULTS ==================== -->
+    <div id="screen-results" class="screen flex-col min-h-screen bg-background-light">
+        <header class="sticky top-0 z-50 bg-background-light/80 apple-blur border-b border-slate-200">
+            <div class="max-w-3xl mx-auto px-6 h-16 flex items-center justify-between">
+                <button onclick="goToScreen('screen-entry')"
+                    class="flex items-center gap-2 text-primary hover:opacity-80 transition-opacity font-medium">
+                    <span class="material-symbols-outlined">arrow_back_ios</span>
+                    <span>Voltar</span>
+                </button>
+                <h1 class="text-lg font-semibold absolute left-1/2 -translate-x-1/2">Interpretação</h1>
+                <div class="w-10"></div>
+            </div>
+        </header>
+
+        <main class="max-w-3xl mx-auto px-6 py-10 space-y-6 w-full">
+            <!-- Context badge -->
+            <div id="result-badge" class="flex items-center gap-2 fade-in-up">
+                <span
+                    class="bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider"
+                    id="result-relation-badge"></span>
+                <span class="text-slate-400 text-xs" id="result-tone-badge"></span>
+            </div>
+
+            <!-- Section 1: What's happening -->
+            <section class="fade-in-up-1">
+                <div class="bg-white rounded-xl p-8 shadow-sm border border-slate-100">
+                    <div class="flex items-center gap-3 mb-4">
+                        <span class="material-symbols-outlined text-primary text-3xl">info</span>
+                        <h2 class="text-xl font-bold tracking-tight">O que está acontecendo</h2>
+                    </div>
+                    <p id="result-happening" class="text-slate-600 leading-relaxed text-base"></p>
+                </div>
+            </section>
+
+            <!-- Section 2: What they expect -->
+            <section class="fade-in-up-2">
+                <div class="bg-white rounded-xl p-8 shadow-sm border border-slate-100">
+                    <div class="flex items-center gap-3 mb-6">
+                        <span class="material-symbols-outlined text-primary text-3xl">assignment_ind</span>
+                        <h2 class="text-xl font-bold tracking-tight">O que esperam de você</h2>
+                    </div>
+                    <ul id="result-expectations" class="space-y-5"></ul>
+                </div>
+            </section>
+
+            <!-- Section 3: Response suggestions -->
+            <section class="fade-in-up-3">
+                <h2 class="text-xl font-bold tracking-tight px-2 flex items-center gap-2 mb-4">
+                    <span class="material-symbols-outlined text-slate-700">chat_bubble</span>
+                    Sugestões de resposta
+                </h2>
+                <div id="result-suggestions" class="space-y-4"></div>
+            </section>
+
+            <!-- Disclaimer -->
+            <div class="bg-amber-50 border border-amber-200 rounded-xl p-5 text-center fade-in-up-3">
+                <p class="text-amber-700 text-sm">⚠️ <strong>Lembrete:</strong> Esta ferramenta é um apoio para
+                    compreensão
+                    social do dia a dia e não substitui acompanhamento terapêutico ou jurídico.</p>
+            </div>
+
+            <!-- Footer Actions -->
+            <footer class="pt-4 pb-12 flex flex-col sm:flex-row gap-4 justify-center fade-in-up-3">
+                <button onclick="resetAndStart()"
+                    class="flex-1 sm:flex-none sm:min-w-[220px] bg-primary text-white px-8 py-4 rounded-xl font-bold text-base hover:shadow-lg hover:shadow-primary/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined">refresh</span>
+                    Interpretar outra situação
+                </button>
+                <button onclick="goToScreen('screen-landing')"
+                    class="flex-1 sm:flex-none sm:min-w-[180px] border border-slate-200 bg-white text-slate-700 px-8 py-4 rounded-xl font-bold text-base hover:bg-slate-50 transition-all active:scale-[0.98]">
+                    Voltar ao início
+                            <button
+                                class="mood-btn px-5 py-2.5 rounded-full bg-slate-100 hover:bg-primary/10 hover:text-primary transition-all text-sm font-medium text-slate-700 border border-transparent hover:border-primary/20"
+                                data-mood="Com raiva" onclick="selectMood(this)">😤 Com raiva</button>
+                            <button
+                                class="mood-btn px-5 py-2.5 rounded-full bg-slate-100 hover:bg-primary/10 hover:text-primary transition-all text-sm font-medium text-slate-700 border border-transparent hover:border-primary/20"
+                                data-mood="Neutro" onclick="selectMood(this)">😐 Neutro</button>
+                        </div>
+                    </section>
+
+                    <!-- Goal -->
+                    <section class="space-y-6">
+                        <div class="text-center space-y-2">
+                            <h2 class="text-2xl font-bold tracking-tight">O que você quer alcançar?</h2>
+                            <p class="text-slate-500 text-sm">Escolha seu objetivo principal (opcional).</p>
+                        </div>
+                        <div class="space-y-3" id="goal-items">
+                            <div class="goal-item relative flex items-center p-4 cursor-pointer rounded-xl border border-slate-200 hover:bg-slate-50 transition-all"
+                                onclick="selectGoal(this, 'Entender melhor o que aconteceu')">
+                                <div class="flex items-center gap-4 flex-1">
+                                    <div
+                                        class="goal-icon w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary transition-all">
+                                        <span class="material-symbols-outlined">lightbulb</span>
+                                    </div>
+                                    <span class="goal-label text-base font-medium text-slate-700">Entender melhor</span>
+                                </div>
+                                <div
+                                    class="goal-check w-5 h-5 rounded border border-slate-300 flex items-center justify-center transition-all">
+                                    <span class="material-symbols-outlined text-sm text-white hidden">check</span>
+                                </div>
+                            </div>
+                            <div class="goal-item relative flex items-center p-4 cursor-pointer rounded-xl border border-slate-200 hover:bg-slate-50 transition-all"
+                                onclick="selectGoal(this, 'Resolver a situação e responder adequadamente')">
+                                <div class="flex items-center gap-4 flex-1">
+                                    <div
+                                        class="goal-icon w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary transition-all">
+                                        <span class="material-symbols-outlined">check_circle</span>
+                                    </div>
+                                    <span class="goal-label text-base font-medium text-slate-700">Resolver a
+                                        situação</span>
+                                </div>
+                                <div
+                                    class="goal-check w-5 h-5 rounded border border-slate-300 flex items-center justify-center transition-all">
+                                    <span class="material-symbols-outlined text-sm text-white hidden">check</span>
+                                </div>
+                            </div>
+                            <div class="goal-item relative flex items-center p-4 cursor-pointer rounded-xl border border-slate-200 hover:bg-slate-50 transition-all"
+                                onclick="selectGoal(this, 'Pedir desculpas ou me explicar')">
+                                <div class="flex items-center gap-4 flex-1">
+                                    <div
+                                        class="goal-icon w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary transition-all">
+                                        <span class="material-symbols-outlined">volunteer_activism</span>
+                                    </div>
+                                    <span class="goal-label text-base font-medium text-slate-700">Pedir desculpas / me
+                                        explicar</span>
+                                </div>
+                                <div
+                                    class="goal-check w-5 h-5 rounded border border-slate-300 flex items-center justify-center transition-all">
+                                    <span class="material-symbols-outlined text-sm text-white hidden">check</span>
+                                </div>
+                            </div>
+                            <div class="goal-item relative flex items-center p-4 cursor-pointer rounded-xl border border-slate-200 hover:bg-slate-50 transition-all"
+                                onclick="selectGoal(this, 'Dizer não de forma educada e assertiva')">
+                                <div class="flex items-center gap-4 flex-1">
+                                    <div
+                                        class="goal-icon w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary transition-all">
+                                        <span class="material-symbols-outlined">cancel</span>
+                                    </div>
+                                    <span class="goal-label text-base font-medium text-slate-700">Dizer não
+                                        educadamente</span>
+                                </div>
+                                <div
+                                    class="goal-check w-5 h-5 rounded border border-slate-300 flex items-center justify-center transition-all">
+                                    <span class="material-symbols-outlined text-sm text-white hidden">check</span>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <footer class="p-6 border-t border-slate-100 flex gap-4">
+                    <button onclick="goToScreen('screen-entry')"
+                        class="flex-1 px-6 py-3 rounded-xl border border-slate-200 text-slate-600 font-semibold text-sm hover:bg-slate-50 transition-colors">
+                        Voltar
+                    </button>
+                    <button onclick="startAnalysis()"
+                        class="flex-[2] px-6 py-3 rounded-xl bg-primary text-white font-semibold text-sm shadow-xl shadow-primary/30 hover:bg-primary/90 transition-all flex items-center justify-center gap-2">
+                        <span>Interpretar</span>
+                        <span class="material-symbols-outlined text-lg">auto_awesome</span>
+                    </button>
+                </footer>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== SCREEN 4: LOADING ==================== -->
+    <div id="screen-loading" class="screen flex-col min-h-screen items-center justify-center bg-background-light">
+        <div class="flex flex-col items-center text-center gap-6 px-6">
+            <div class="relative">
+                <span class="material-symbols-outlined text-primary text-5xl"
+                    style="animation: pulse-dot 1.5s ease-in-out infinite;">auto_awesome</span>
+            </div>
+            <div class="space-y-3">
+                <h1 class="text-3xl md:text-4xl font-semibold tracking-tight text-slate-900">Analisando o contexto...
+                </h1>
+                <p class="text-slate-500 text-lg font-light">Buscando a melhor interpretação para você.</p>
+            </div>
+            <div class="w-full max-w-[320px] flex flex-col gap-4">
+                <div class="relative h-1.5 w-full bg-slate-200 rounded-full overflow-hidden">
+                    <div id="loading-bar" class="absolute left-0 top-0 h-full bg-primary rounded-full animate-progress">
+                    </div>
+                </div>
+                <div class="flex items-center justify-center gap-3">
+                    <span class="flex h-2 w-2 rounded-full bg-primary animate-pulse-dot"></span>
+                    <p id="loading-status" class="text-slate-400 text-sm font-medium tracking-wide uppercase">
+                        Processando
+                        informações</p>
+                </div>
+            </div>
+            <div class="mt-12">
+                <p class="text-slate-300 text-xs font-medium tracking-[0.2em] uppercase">Social Interpreter AI</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== SCREEN 5: RESULTS ==================== -->
+    <div id="screen-results" class="screen flex-col min-h-screen bg-background-light">
+        <header class="sticky top-0 z-50 bg-background-light/80 apple-blur border-b border-slate-200">
+            <div class="max-w-3xl mx-auto px-6 h-16 flex items-center justify-between">
+                <button onclick="goToScreen('screen-entry')"
+                    class="flex items-center gap-2 text-primary hover:opacity-80 transition-opacity font-medium">
+                    <span class="material-symbols-outlined">arrow_back_ios</span>
+                    <span>Voltar</span>
+                </button>
+                <h1 class="text-lg font-semibold absolute left-1/2 -translate-x-1/2">Interpretação</h1>
+                <div class="w-10"></div>
+            </div>
+        </header>
+
+        <main class="max-w-3xl mx-auto px-6 py-10 space-y-6 w-full">
+            <!-- Context badge -->
+            <div id="result-badge" class="flex items-center gap-2 fade-in-up">
+                <span
+                    class="bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider"
+                    id="result-relation-badge"></span>
+                <span class="text-slate-400 text-xs" id="result-tone-badge"></span>
+            </div>
+
+            <!-- Section 1: What's happening -->
+            <section class="fade-in-up-1">
+                <div class="bg-white rounded-xl p-8 shadow-sm border border-slate-100">
+                    <div class="flex items-center gap-3 mb-4">
+                        <span class="material-symbols-outlined text-primary text-3xl">info</span>
+                        <h2 class="text-xl font-bold tracking-tight">O que está acontecendo</h2>
+                    </div>
+                    <p id="result-happening" class="text-slate-600 leading-relaxed text-base"></p>
+                </div>
+            </section>
+
+            <!-- Section 2: What they expect -->
+            <section class="fade-in-up-2">
+                <div class="bg-white rounded-xl p-8 shadow-sm border border-slate-100">
+                    <div class="flex items-center gap-3 mb-6">
+                        <span class="material-symbols-outlined text-primary text-3xl">assignment_ind</span>
+                        <h2 class="text-xl font-bold tracking-tight">O que esperam de você</h2>
+                    </div>
+                    <ul id="result-expectations" class="space-y-5"></ul>
+                </div>
+            </section>
+
+            <!-- Section 3: Response suggestions -->
+            <section class="fade-in-up-3">
+                <h2 class="text-xl font-bold tracking-tight px-2 flex items-center gap-2 mb-4">
+                    <span class="material-symbols-outlined text-slate-700">chat_bubble</span>
+                    Sugestões de resposta
+                </h2>
+                <div id="result-suggestions" class="space-y-4"></div>
+            </section>
+
+            <!-- Disclaimer -->
+            <div class="bg-amber-50 border border-amber-200 rounded-xl p-5 text-center fade-in-up-3">
+                <p class="text-amber-700 text-sm">⚠️ <strong>Lembrete:</strong> Esta ferramenta é um apoio para
+                    compreensão
+                    social do dia a dia e não substitui acompanhamento terapêutico ou jurídico.</p>
+            </div>
+
+            <!-- Footer Actions -->
+            <footer class="pt-4 pb-12 flex flex-col sm:flex-row gap-4 justify-center fade-in-up-3">
+                <button onclick="resetAndStart()"
+                    class="flex-1 sm:flex-none sm:min-w-[220px] bg-primary text-white px-8 py-4 rounded-xl font-bold text-base hover:shadow-lg hover:shadow-primary/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined">refresh</span>
+                    Interpretar outra situação
+                </button>
+                <button onclick="goToScreen('screen-landing')"
+                    class="flex-1 sm:flex-none sm:min-w-[180px] border border-slate-200 bg-white text-slate-700 px-8 py-4 rounded-xl font-bold text-base hover:bg-slate-50 transition-all active:scale-[0.98]">
+                    Voltar ao início
+                </button>
+            </footer>
+        </main>
+    </div>
+
+    <!-- ==================== SCREEN 6: PRICING (PRO) ==================== -->
+    <div id="screen-pricing" class="screen flex-col min-h-screen bg-background-light" style="display: none;">
+        <header class="sticky top-0 z-50 bg-background-light/80 apple-blur border-b border-slate-200">
+            <div class="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
+                <button onclick="goToScreen('screen-landing')" class="flex items-center gap-2 text-primary hover:opacity-80 transition-opacity font-medium">
+                    <span class="material-symbols-outlined">arrow_back_ios_new</span>
+                    <span>Início</span>
+                </button>
+                <div class="flex items-center gap-1.5 absolute left-1/2 -translate-x-1/2 text-slate-800 font-bold">
+                    <span class="material-symbols-outlined text-primary">workspace_premium</span>
+                    Modelos de Negócio
+                </div>
+                <div class="w-10"></div>
+            </div>
+        </header>
+
+        <main class="max-w-5xl mx-auto px-6 py-12 w-full flex-1">
+            <div class="text-center mb-12 space-y-4">
+                <h1 class="text-3xl md:text-5xl font-extrabold text-slate-900 tracking-tight">Desbloqueie o potencial <span class="text-primary">completo</span></h1>
+                <p class="text-slate-500 text-lg max-w-2xl mx-auto">Escolha o modelo ideal para seu uso pessoal ou para aplicar com seus pacientes e colaboradores.</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Free Tier -->
+                <div class="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm flex flex-col hover:border-slate-300 transition-all">
+                    <h3 class="text-xl font-bold text-slate-800 mb-2">Básico</h3>
+                    <p class="text-slate-500 text-sm mb-6 flex-1">Para uso ocasional em situações do dia a dia.</p>
+                    <div class="text-4xl font-extrabold text-slate-900 mb-6">Grátis</div>
+                    <ul class="space-y-4 mb-8 text-sm text-slate-600 font-medium">
+                        <li class="flex items-center gap-3"><span class="material-symbols-outlined text-emerald-500">check_circle</span> 5 análises gratuitas/dia</li>
+                        <li class="flex items-center gap-3"><span class="material-symbols-outlined text-emerald-500">check_circle</span> Contexto em texto simples</li>
+                        <li class="flex items-center gap-3 opacity-50"><span class="material-symbols-outlined text-slate-400">cancel</span> Upload de áudios/prints</li>
+                        <li class="flex items-center gap-3 opacity-50"><span class="material-symbols-outlined text-slate-400">cancel</span> Relatórios de evolução</li>
+                    </ul>
+                    <button onclick="goToScreen('screen-entry')" class="w-full py-4 rounded-xl border border-slate-200 font-bold text-slate-700 hover:bg-slate-50 transition-all">
+                        Continuar Grátis
+                    </button>
+                    <p class="text-center text-xs text-slate-400 mt-4 leading-tight">Mantido por anúncios discretos ou patrocínios ESG pontuais.</p>
+                </div>
+
+                <!-- Pro Tier (B2C) -->
+                <div class="bg-slate-900 rounded-3xl p-8 border border-primary/20 shadow-xl shadow-primary/20 flex flex-col relative transform md:-translate-y-4">
+                    <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-primary text-white text-xs font-bold uppercase tracking-wider px-4 py-1.5 rounded-full whitespace-nowrap shadow-md">
+                        Mais Popular
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2 ml-1">Interpreter PRO</h3>
+                    <p class="text-slate-400 text-sm mb-6 flex-1">Apoio completo e histórico ilimitado para usuários.</p>
+                    <div class="text-4xl font-extrabold text-white mb-2">R$ 19<span class="text-xl text-slate-500 font-semibold">,90</span></div>
+                    <div class="text-xs text-slate-500 mb-6">por mês</div>
+                    <ul class="space-y-4 mb-8 text-sm text-slate-300 font-medium">
+                        <li class="flex items-center gap-3"><span class="material-symbols-outlined text-primary">check_circle</span> Análises ilimitadas</li>
+                        <li class="flex items-center gap-3"><span class="material-symbols-outlined text-primary">check_circle</span> Envio de Prints, PDFs e Áudios</li>
+                        <li class="flex items-center gap-3"><span class="material-symbols-outlined text-primary">check_circle</span> Histórico salvo e dicas de progresso</li>
+                        <li class="flex items-center gap-3"><span class="material-symbols-outlined text-primary">check_circle</span> Sem anúncios (100% privado)</li>
+                    </ul>
+                    <button class="w-full py-4 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold transition-all shadow-lg shadow-primary/30 flex items-center justify-center gap-2" onclick="alert('Assinatura PRO simulada com sucesso!')">
+                        Assinar o PRO
+                        <span class="material-symbols-outlined">arrow_right_alt</span>
+                    </button>
+                </div>
+
+                <!-- Enterprise / Clinic (B2B) -->
+                <div class="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm flex flex-col hover:border-slate-300 transition-all">
+                    <h3 class="text-xl font-bold text-slate-800 mb-2">Clínicas & RH</h3>
+                    <p class="text-slate-500 text-sm mb-6 flex-1">Para terapeutas e empresas focadas em RH inclusivo B2B.</p>
+                    <div class="text-4xl font-extrabold text-slate-900 mb-2">R$ 99<span class="text-xl text-slate-400 font-semibold">,00</span></div>
+                    <div class="text-xs text-slate-400 mb-6">por mês</div>
+                    <ul class="space-y-4 mb-8 text-sm text-slate-600 font-medium">
+                        <li class="flex items-center gap-3"><span class="material-symbols-outlined text-emerald-500">check_circle</span> Acesso p/ até 10 pacientes/colab</li>
+                        <li class="flex items-center gap-3"><span class="material-symbols-outlined text-emerald-500">check_circle</span> Dashboard de evolução clínica</li>
+                        <li class="flex items-center gap-3"><span class="material-symbols-outlined text-emerald-500">check_circle</span> Mapas de ansiedade e gatilhos</li>
+                        <li class="flex items-center gap-3"><span class="material-symbols-outlined text-emerald-500">check_circle</span> Conta gerida corporativamente</li>
+                    </ul>
+                    <button class="w-full py-4 rounded-xl border border-slate-200 font-bold text-slate-700 hover:bg-slate-50 transition-all" onclick="alert('Contato com B2B simulado! Um agente entrará em contato.')">
+                        Falar com a equipe
+                    </button>
+                </div>
+            </div>
+            
+            <div class="mt-8 bg-primary/5 border border-primary/20 rounded-2xl p-6 flex flex-col md:flex-row items-center gap-6 text-center md:text-left justify-between">
+                <div>
+                    <h4 class="text-lg font-bold text-slate-800 flex items-center gap-2 justify-center md:justify-start"><span class="material-symbols-outlined text-primary">token</span> Prefere pagar por uso (Pay-per-use)?</h4>
+                    <p class="text-slate-600 text-sm mt-1">Sugerimos pacotes de "Tokens Individuais" para análises avançadas (áudio/pdf longo) caso não queira assinatura.</p>
+                </div>
+                <button class="px-6 py-3 rounded-xl bg-white border border-slate-200 text-primary font-bold shadow-sm hover:bg-slate-50 whitespace-nowrap" onclick="alert('Pacotes avulsos em construção. Sugestão: R$ 4,90 por 10 Tokens.')">
+                    Comprar Créditos
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <!-- API Mapped to hardcoded config -->
+
+    <script src="app.js"></script>
+</body>
