@@ -1,90 +1,106 @@
-# Social Interpreter — Mensagens Claras, Mentes Calmas.
+# 🧠 Social Interpreter — Inteligência Artificial para Acessibilidade Cognitiva
 
-> **Protótipo de co-piloto de inteligência social projetado para apoiar a comunicação neurodivergente.**
+> **Documentação Técnica e de Negócio — Protótipo de Co-piloto de Habilidades Sociais para Neurodivergentes.**
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Status: MVP](https://img.shields.io/badge/Status-Public--MVP-success)](https://brnpessoa14.github.io/social-interpreter/)
 [![AI Ready: Groq](https://img.shields.io/badge/AI--Engine-Groq--Llama3.3-blue)](https://groq.com/)
+[![Status: MVP](https://img.shields.io/badge/Status-Public--MVP-success)](https://brnpessoa14.github.io/social-interpreter/)
 
 ---
 
-## Visão Geral do Projeto
-O **Social Interpreter** é um projeto de Tecnologia Assistiva que aplica métodos avançados de Inteligência Artificial para auxiliar adultos neurodivergentes (Autismo, TDAH, Ansiedade Social). Nosso objetivo é reduzir o custo cognitivo da comunicação moderna através da análise automatizada de contexto e tom.
-
-Este trabalho foca na implementação prática de modelos de linguagem de larga escala (LLMs) e ferramentas de extração multimodal para transformar incertezas sociais em orientações acionáveis.
+## 📖 1. Visão Geral (Executive Summary)
+O **Social Interpreter** é uma solução de Tecnologia Assistiva desenvolvida para auxiliar adultos neurodivergentes (Autismo Nível 1, TDAH e indivíduos com Ansiedade Social) na decodificação de nuances comunicativas no cotidiano. O projeto utiliza métodos avançados de Processamento de Linguagem Natural (NLP) e visão computacional para mitigar o burnout social caudado pelo "masking" e facilitar a inserção ativa de indivíduos em ambientes acadêmicos e corporativos.
 
 ---
 
-## Problema e Solução Proposta
+## 🛠️ 2. PRD — Product Requirements Document
 
-### O Problema
-Estima-se que **15% a 20% da população mundial** possua algum tipo de neurodivergência. No ambiente acadêmico e corporativo, a dificuldade em interpretar subtextos e ironias gera paralisia por análise e exaustão mental (burnout). 
+### 2.1. O Problema (Problem Statement)
+Estima-se que até 20% da população mundial possua algum grau de neurodivergência. A comunicação humana é baseada em 70% de tons não literais (ironia, implícitos, linguagem corporal simulada em texto). Para quem processa informações de forma literal ou analítica, essa "zona cinzenta" gera ansiedade, paralisia por análise e mal-entendidos constantes com figuras de autoridade (chefes, professores).
 
-### A Solução (Protótipo Implementado)
-Desenvolvemos uma interface minimalista e funcional que atua como um tradutor de contexto bidirecional, integrando as seguintes camadas de IA:
-1.  **Processamento de Linguagem Natural (NLP)**: Análise de intenção e tom através de LLMs.
-2.  **Multimodalidade (Entrada de Dados)**: Aceita texto direto, transcrição de áudio em tempo real, screenshots de conversas (OCR) ou documentos PDF.
-3.  **Resultados Estruturados**: O sistema entrega uma "Tradução Social", expectativas de interação e três modelos de resposta prontos (Neutro, Assertivo e Acolhedor).
+### 2.2. Personas (Público-alvo)
+*   **Persona A (Acadêmica)**: Estudante universitário neurodivergente que recebe e-mails curtos de professores e tem dificuldade em entender se o tom é de cobrança ou apenas informativo.
+*   **Persona B (Corporativa)**: Profissional em cargo técnico que recebe feedbacks "entre linhas" no Slack/Teams e não sabe como responder de forma assertiva sem parecer rude ou submisso.
 
----
-
-## Métodos e Aplicações de IA (Stack Técnica)
-
-Neste projeto, priorizamos a latência mínima e o processamento de ponta utilizando a seguinte arquitetura:
-
-*   **Motor de Inferência (NLP)**: 
-    *   **LLM**: **Llama 3.3 70B** (via Groq API), selecionado pela alta capacidade de raciocínio contextual e velocidade de resposta.
-    *   **Engenharia de Prompt**: Implementamos prompts estruturados (JSON-only) para garantir que a saída da IA seja determinística e fácil de integrar ao front-end.
-*   **Recuperação e Extração Multimodal**:
-    *   **STT (Speech-to-text)**: **Whisper Large V3 Turbo** para transcrição fluida.
-    *   **OCR (Optical Character Recognition)**: **Tesseract.js** para processamento de imagens local no navegador.
-    *   **Parsing de Documentos**: **PDF.js** para análise de contexto de manuais e e-mails acadêmicos.
-*   **Frontend**: Desenvolvido em Vanilla JavaSript e CSS customizado para garantir portabilidade e baixo consumo de recursos.
-
----
-
-## Análise de Viabilidade Social e Econômica
-
-Como parte da documentação de projeto, realizamos uma análise de como esta aplicação poderia ser sustentada como um serviço real:
-
-### 1. Mercados Sugeridos
-*   **B2C Individual**: Apoio direto para pessoas físicas.
-*   **B2B Clínico**: Apoio a profissionais de saúde (Psicólogos e Terapeutas Ocupacionais).
-*   **B2B Enterprise/Edu**: Licenciamento para instituições que buscam inclusão acadêmica e corporativa.
-
-### 2. Modelos de Sustentabilidade (Monetização)
-| Modelo | Abordagem | Público-alvo |
+### 2.3. Requisitos Funcionais (RFs)
+| ID | Requisito | Descrição |
 | :--- | :--- | :--- |
-| **SaaS Freemium** | Versão gratuita limitada; versão PRO com multimodalidade ilimitada. | Usuários Finais |
-| **Licenciamento B2B** | Pacotes de acesso para RHs e departamentos de Inclusão. | Empresas |
-| **API as a Service** | Integração em plataformas de suporte (B2B2C). | Desenvolvedores |
-| **Pay-per-use** | Cobrança por volume de processamento ou tokens avulsos. | Usuários Ocasionais |
+| **RF01** | **Entrada Multimodal** | O usuário deve poder inserir dados via Texto, Áudio (Voice-to-text), Imagem (Screenshots via OCR) ou PDFs. |
+| **RF02** | **Análise de Contexto Social** | O sistema deve processar a entrada e retornar o tom provável, o resumo da situação e as intenções ocultas. |
+| **RF03** | **Gerador de Respostas** | O sistema deve oferecer 3 sugestões de resposta: Neutra, Assertiva e Acolhedora. |
+| **RF04** | **Configuração de API** | Permite que o usuário insira sua própria chave de API para garantir autonomia e escalabilidade do protótipo. |
+
+### 2.4. Regras de Negócio (RNs)
+*   **RN01 (Privacidade Efêmera)**: Nenhuma mensagem enviada deve ser salva em bancos de dados no servidor da aplicação. O processamento deve ser volátil.
+*   **RN02 (Neutralidade Assistiva)**: A IA não deve sugerir comportamentos hostis ou que violem normas legais/éticas.
+*   **RN03 (Linguagem Clara)**: O resumo da interpretação deve obrigatoriamente evitar jargões complexos, sendo acessível para quem está em estado de ansiedade.
 
 ---
 
-## Roadmap e Evoluções Futuras
+## 🗺️ 3. Fluxo de Processamento (Diagrama Mermaid)
 
-Planejamos a evolução deste protótipo em três fases principais:
+Abaixo, descrevemos o fluxo lógico do sistema, desde a entrada multissensorial até a entrega da recomendação social:
 
-*   **Fase 1 (Atual)**: MVP funcional integrando NLP, Áudio e OCR.
-*   **Fase 2 (Curto Prazo)**: Desenvolvimento de **Extensão de Navegador** para análise in-line em plataformas como WhatsApp Web e Slack.
-*   **Fase 3 (Longo Prazo)**: Implementação de modelos locais (IA Edge) para garantir 100% de privacidade offline.
+```mermaid
+flowchart TD
+    A[Usuário Inicia Aplicação] --> B{Escolha da Entrada}
+    B -- Digitação --> C[Texto Direto]
+    B -- Voz / Áudio --> D[Transcrição Whisper Large V3]
+    B -- Imagem / Print --> E[OCR via Tesseract.js]
+    B -- Documento PDF --> F[Parsing via PDF.js]
+    
+    C & D & E & F --> G[Envio para Motor de IA - Groq Llama 3.3]
+    
+    G --> H[Análise de Tom e Contextualização]
+    H --> I[Identificação de Expectativas Ocultas]
+    
+    I --> J[Saída: Dashboard de Interpretação]
+    J --> K[Tradução Social Simplificada]
+    J --> L[Sugestões de Resposta: Neutra/Assertiva/Acolhedora]
+    
+    L --> M[Usuário Copia Resposta e Finaliza Sessão]
+```
 
 ---
 
-## Ética, Segurança e Privacidade
-Este projeto foi concebido sob princípios éticos rigorosos:
-*   **Privacidade por Design**: No atual estágio, nenhum dado pessoal de texto ou áudio é persistido em servidores externos (processamento efêmero).
-*   **Foco Assistivo**: A ferramenta atua como suporte e **não substitui** acompanhamento profissional clínico.
+## 🏗️ 4. Arquitetura Técnica e Métodos de IA
+
+Para atender às demandas académicas de performance e aplicação, implementamos:
+
+*   **Motor NLP Principal**: Utilização do modelo **Llama 3.3 70B Versatile** via infraestrutura Groq, alcançando velocidades de inferência de centenas de tokens por segundo (LPU technology).
+*   **Processamento de Áudio**: Implementação do **Whisper-Large-V3-Turbo** para transcrição pt-BR de alta fidelidade, essencial para captar nuances de fala.
+*   **Visão Computacional In-Browser**: Uso do **Tesseract.js** para garantir que prints de conversas (ex: WhatsApp Web) possam ser analisados sem que o usuário precise digitar todo o conteúdo manualmente.
+*   **Stack Front-End**: Arquitetura SPA (Single Page Application) em Vanilla Javascript e CSS moderno, garantindo baixo footprint e foco total na acessibilidade visual.
 
 ---
 
-## Equipe do Projeto
-*   Bruno Pessoa
-*   Gabriel de Santi
-*   Guilherme Bastos
-*   Jota
-*   Fernando
+## 📈 5. Análise de Mercado e Viabilidade de Negócio
+
+Como parte do planejamento de um produto sustentável, identificamos as seguintes avenidas de crescimento:
+
+### 5.1. Diferenciais Competitivos
+Enquanto o ChatGPT é uma ferramenta generalista, o **Social Interpreter** é focado. Ele "mastiga" a informação, removendo a necessidade de longas conversas com a IA para chegar a uma conclusão. Nossa entrega é via **Actionable Insights**.
+
+### 5.2. Modelos de Sustentabilidade Econômica
+1.  **Assinatura Individual (B2C)**: Modelo mensal para usuários avançados que necessitam de volume ilimitado de análises multimodal.
+2.  **Licenciamento Educacional (B2B)**: Universidades compram licenças para prover aos alunos neurodivergentes como ferramenta de acessibilidade acadêmica.
+3.  **Licenciamento Corporativo (ESG/DE&I)**: Venda para empresas que possuem programas de inclusão de talentos neurodivergentes no RH.
 
 ---
-**Trabalho desenvolvido no âmbito da disciplina de Métodos e Aplicações de IA.**
+
+## 📊 6. Roadmap de Evolução (H2/24 - H1/25)
+
+1.  **Curto Prazo (Extensão de Navegador)**: Levar o motor do Social Interpreter para dentro do WhatsApp Web, LinkedIn e Slack, oferecendo sugestões "em tempo real" na caixa de digitação.
+2.  **Médio Prazo (App Mobile/Teclado)**: Desenvolvimento de um teclado customizado para iOS/Android que sugere tons de resposta durante a escrita.
+3.  **Longo Prazo (IA Offline/Local)**: Migração para modelos ONNX ou WebLLM para processamento 100% local, elevando a privacidade ao nível máximo.
+
+---
+
+## 👥 7. Equipe de Desenvolvimento
+*   [Nome do Líder/Integrante 1]
+*   [Nome do Integrante 2]
+*   [Nome do Integrante 3]
+*   [Nome do Integrante 4]
+
+---
+**Documentação integrante do portfólio acadêmico para a disciplina de Métodos e Aplicações de IA.**
+*Desenvolvido com o compromisso de tornar a tecnologia um meio para a inclusão social.*
