@@ -99,43 +99,14 @@
                 if (window._loadingInterval) clearInterval(window._loadingInterval);
 
                 let msg = err.message || 'Tente novamente.';
-                if (msg.includes('QUOTA')) msg = '⚠️ Cota da API esgotada. Tente novamente mais tarde.';
+                if (msg.includes('QUOTA')) {
+                    msg = '⚠️ Cota da API esgotada. Tente novamente mais tarde.';
+                } else if (msg.includes('API_KEY') || msg.includes('invalid') || msg.includes('Unauthorized')) {
+                    msg = 'Chave de API inválida ou não configurada. Verifique sua chave antes de tentar novamente.';
+                }
 
                 alert('Erro ao processar: ' + msg);
                 goToScreen('screen-context');
-            }
-        }
-
-        async function runAnalysis() {
-            goToScreen('screen-loading');
-            resetLoadingBar();
-
-            const prompt = buildPrompt();
-            try {
-                const result = await callAI(prompt);
-                renderResults(result);
-                goToScreen('screen-results');
-            } catch (err) {
-                console.error(err);
-                if (window._loadingInterval) clearInterval(window._loadingInterval);
-                if (err.message && err.message.includes('API_KEY')) {
-                    localStorage.removeItem('si_api_key');
-                    document.getElementById('api-modal-error').textContent = 'Chave de API inválida. Verifique e tente novamente.';
-                    document.getElementById('api-modal-error').classList.remove('hidden');
-                    openApiModal();
-                    goToScreen('screen-context');
-                } else if (err.message && err.message.includes('QUOTA')) {
-                    document.getElementById('api-modal-error').textContent = '⚠️ Cota da API esgotada. Tente outro provedor ou aguarde. Use Groq ou OpenRouter (gratuitos).';
-                    document.getElementById('api-modal-error').classList.remove('hidden');
-                    openApiModal();
-                    goToScreen('screen-context');
-                } else {
-                    const msg = err.message || 'Tente novamente.';
-                    document.getElementById('api-modal-error').textContent = 'Erro: ' + msg;
-                    document.getElementById('api-modal-error').classList.remove('hidden');
-                    openApiModal();
-                    goToScreen('screen-context');
-                }
             }
         }
 
