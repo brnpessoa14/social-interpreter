@@ -471,8 +471,7 @@ Regras:
                     for (let i = 1; i <= pdf.numPages; i++) {
                         const page = await pdf.getPage(i);
                         const textContent = await page.getTextContent();
-                        extractedText += textContent.items.map(item => item.str).join(' ') + '
-';
+                        extractedText += textContent.items.map(item => item.str).join(' ') + '';
                     }
                 } else {
                     throw new Error('Formato de arquivo não suportado. Envie Imagem, PDF ou Áudio.');
@@ -480,9 +479,7 @@ Regras:
 
                 if (extractedText && extractedText.trim().length > 0) {
                     const ta = document.getElementById('message');
-                    ta.value += (ta.value && !ta.value.endsWith(' ') ? '
-
-' : '') + extractedText.trim();
+                    ta.value += (ta.value && !ta.value.endsWith(' ') ? '': '') + extractedText.trim();
                     preview.textContent = 'Leitura concluída com sucesso!';
                     setTimeout(() => {
                         switchInputType('text');
