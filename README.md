@@ -182,7 +182,6 @@ As três tabelas acima formam o núcleo do modelo de dados: `users` gerencia ide
 | Whisper-Large-V3-Turbo para ASR | Google Speech-to-Text, AssemblyAI | Já disponível na infraestrutura Groq, eliminando dependência de terceiro adicional. Alta fidelidade para pt-BR integrada ao mesmo provider. |
 | Tesseract.js para OCR in-browser | AWS Textract, Google Cloud Vision (server-side) | Processamento 100% client-side: nenhum print de conversa privada trafega para servidor externo. Fortalece RNF01 sem custo adicional de API. |
 | Vanilla JS + CSS (sem framework) | React, Vue, Angular | Zero dependências de framework reduzem bundle size e complexidade de deploy. Foco em acessibilidade sem overhead de virtual DOM para uma SPA de escopo definido. |
-| Modelo BYOK (Bring Your Own Key) | Backend gerenciado com chaves centralizadas | Elimina custo de infraestrutura de backend para o MVP. Valida disposição de pagamento do usuário avançado antes de escalar. |
 | SPA sem backend próprio | API REST dedicada em Node.js ou Python/FastAPI | Reduz drasticamente o time-to-market e o custo operacional do protótipo. Toda lógica de negócio reside no prompt engineering e na API Groq. |
 
 ---
@@ -203,7 +202,6 @@ As três tabelas acima formam o núcleo do modelo de dados: `users` gerencia ide
 
 | Risco | Probabilidade | Impacto | Mitigação |
 | --- | --- | --- | --- |
-| Baixa adesão ao modelo BYOK pelo público-alvo | Alta | Alto | Disponibilizar plano gerenciado assim que houver tração suficiente. BYOK é estratégia de validação de MVP, não modelo definitivo. |
 | Concorrência de features nativas em plataformas (ex: Copilot no Teams) | Média | Alto | Fortalecer o nicho: nenhum player generalista oferece linguagem acessível focada em neurodivergentes. Construir comunidade e brand equity. |
 | Regulatório: LGPD e dados sensíveis de saúde | Média | Muito Alto | Dados de neurodivergência podem ser classificados como dados sensíveis (Art. 11 da LGPD). Adotar Privacy by Design e consultar assessoria jurídica especializada antes de qualquer lançamento com cadastro. |
 | Dificuldade de monetização Enterprise sem estrutura jurídica | Alta | Médio | Formalizar a empresa antes de negociações B2B. Explorar aceleradoras de impacto social (PIPE/FAPESP) para capital inicial. |
