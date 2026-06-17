@@ -1,473 +1,563 @@
-// ==================== STATE ====================
-        let state = { recipient: '', message: '', mood: '', goal: '' };
+const STORAGE_KEYS = {
+    groqApiKey: "socialInterpreter.groqApiKey",
+    textModel: "socialInterpreter.textModel"
+};
 
-        // ==================== NAVIGATION ====================
-        function goToScreen(id) {
-            document.querySelectorAll('.screen').forEach(s => {
-                s.classList.remove('active');
-                s.style.display = 'none';
-            });
-            const target = document.getElementById(id);
-            target.classList.add('active');
-            target.style.display = 'flex';
-            window.scrollTo(0, 0);
-        }
+const DEFAULT_MODEL = "llama-3.3-70b-versatile";
+const SAMPLE_MESSAGE = "O professor escreveu no grupo: \"O que precisa ter na apresentação: o que é, como funciona, o que resolve. 5 slides. Mostrando como funciona vocês vêm hoje?? A API está quebrando no final do fluxo. Validar com o profissional da área.\"";
+let recognition = null;
+let isRecording = false;
+let loadingTimer = null;
+let lastResult = null;
+let lastContext = null;
 
-        function showSection(id) {
-            const el = document.getElementById(id);
-            if (el) { el.scrollIntoView({ behavior: 'smooth' }); }
-        }
+function getSettings() {
+    return {
+        apiKey: localStorage.getItem(STORAGE_KEYS.groqApiKey) || "",
+        model: localStorage.getItem(STORAGE_KEYS.textModel) || DEFAULT_MODEL
+    };
+}
 
-        // ==================== SCREEN 2 → 3 ====================
-        function goToContextScreen() {
-            const recipient = document.getElementById('recipient').value;
-            const message = document.getElementById('message').value.trim();
-            const errEl = document.getElementById('entry-error');
+function updateApiStatus() {
+    const { apiKey } = getSettings();
+    const status = document.getElementById("api-status");
+    status.textContent = apiKey ? "IA real" : "Demo";
+    status.className = apiKey ? "status-pill ready" : "status-pill";
+}
 
-            if (!recipient) {
-                errEl.textContent = 'Por favor, selecione com quem você está falando.';
-                errEl.classList.remove('hidden');
-                return;
-            }
-            if (!message || message.length < 10) {
-                errEl.textContent = 'Por favor, descreva a situação com pelo menos 10 caracteres.';
-                errEl.classList.remove('hidden');
-                return;
-            }
-            errEl.classList.add('hidden');
-            state.recipient = recipient;
-            state.message = message;
-            goToScreen('screen-context');
-        }
+function openSettings() {
+    const { apiKey, model } = getSettings();
+    document.getElementById("api-key").value = apiKey;
+    document.getElementById("api-model").value = model;
+    document.getElementById("settings-dialog").showModal();
+}
 
-        // ==================== MOOD SELECTION ====================
-        function selectMood(btn) {
-            document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
-            btn.classList.add('selected');
-            state.mood = btn.dataset.mood;
-        }
+function saveSettings() {
+    const key = document.getElementById("api-key").value.trim();
+    const model = document.getElementById("api-model").value;
 
-        // ==================== GOAL SELECTION ====================
-        function selectGoal(item, value) {
-            const isSelected = item.classList.contains('selected');
-            document.querySelectorAll('.goal-item').forEach(i => {
-                i.classList.remove('selected');
-                i.style.borderColor = '';
-                i.style.backgroundColor = '';
-                const icon = i.querySelector('.goal-icon');
-                if (icon) { icon.style.backgroundColor = ''; icon.style.color = ''; }
-                const check = i.querySelector('.goal-check');
-                if (check) { check.style.backgroundColor = ''; check.style.borderColor = ''; check.querySelector('.material-symbols-outlined').classList.add('hidden'); }
-            });
-            if (!isSelected) {
-                item.classList.add('selected');
-                const check = item.querySelector('.goal-check');
-                if (check) {
-                    check.style.backgroundColor = '#136dec';
-                    check.style.borderColor = '#136dec';
-                    check.querySelector('.material-symbols-outlined').classList.remove('hidden');
-                }
-                state.goal = value;
-            } else {
-                state.goal = '';
-            }
-        }
+    if (key && !key.startsWith("gsk_")) {
+        showToast("A chave Groq normalmente começa com gsk_. Confira antes de salvar.");
+        return;
+    }
 
-        // ==================== CONFIGURATION ====================
-        const API_CONFIG = {
-            provider: 'groq',
-            model: 'llama-3.3-70b-versatile',
-            apiKey: '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'
-        };
+    if (key) {
+        localStorage.setItem(STORAGE_KEYS.groqApiKey, key);
+    } else {
+        localStorage.removeItem(STORAGE_KEYS.groqApiKey);
+    }
+    localStorage.setItem(STORAGE_KEYS.textModel, model);
+    updateApiStatus();
+    document.getElementById("settings-dialog").close();
+    showToast(key ? "Chave salva neste navegador." : "Modo demo ativado.");
+}
 
-        // ==================== ANALYSIS ====================
-        async function startAnalysis() {
-            runAnalysis();
-        }
+function clearSettings() {
+    localStorage.removeItem(STORAGE_KEYS.groqApiKey);
+    localStorage.removeItem(STORAGE_KEYS.textModel);
+    document.getElementById("api-key").value = "";
+    document.getElementById("api-model").value = DEFAULT_MODEL;
+    updateApiStatus();
+    showToast("Chave removida. O app voltou ao modo demo.");
+}
 
-        async function runAnalysis() {
-            goToScreen('screen-loading');
-            resetLoadingBar();
+async function testApiKey() {
+    const key = document.getElementById("api-key").value.trim();
+    const model = document.getElementById("api-model").value;
 
-            const prompt = buildPrompt();
-            try {
-                const result = await callAI(prompt);
-                renderResults(result);
-                goToScreen('screen-results');
-            } catch (err) {
-                console.error(err);
-                if (window._loadingInterval) clearInterval(window._loadingInterval);
+    if (!key) {
+        showToast("Cole uma chave Groq antes de testar.");
+        return;
+    }
 
-                let msg = err.message || 'Tente novamente.';
-                if (msg.includes('QUOTA')) {
-                    msg = '⚠️ Cota da API esgotada. Tente novamente mais tarde.';
-                } else if (msg.includes('API_KEY') || msg.includes('invalid') || msg.includes('Unauthorized')) {
-                    msg = 'Chave de API inválida ou não configurada. Verifique sua chave antes de tentar novamente.';
-                }
+    if (!key.startsWith("gsk_")) {
+        showToast("A chave Groq normalmente começa com gsk_.");
+        return;
+    }
 
-                alert('Erro ao processar: ' + msg);
-                goToScreen('screen-context');
-            }
-        }
+    showToast("Testando a API...");
+    try {
+        await callGroq("Responda somente com {\"ok\":true}.", { apiKey: key, model });
+        showToast("API funcionando. Pode salvar e apresentar.");
+    } catch (error) {
+        showToast(error.message || "Não foi possível testar a API.");
+    }
+}
 
-        function resetLoadingBar() {
-            const bar = document.getElementById('loading-bar');
-            bar.style.animation = 'none';
-            bar.offsetHeight; // reflow
-            bar.style.animation = 'progress-bar 10s ease-out forwards';
+function showPanel(name) {
+    document.getElementById("panel-results").classList.toggle("hidden", name !== "results");
+    document.getElementById("panel-results").classList.toggle("active", name === "results");
+    document.getElementById("panel-presentation").classList.toggle("hidden", name !== "presentation");
+    document.getElementById("panel-presentation").classList.toggle("active", name === "presentation");
+}
 
-            const statuses = ['Processando informações', 'Identificando o tom', 'Analisando intenção', 'Gerando sugestões'];
-            let i = 0;
-            const statusEl = document.getElementById('loading-status');
-            const interval = setInterval(() => {
-                i = (i + 1) % statuses.length;
-                statusEl.textContent = statuses[i];
-            }, 2200);
-            window._loadingInterval = interval;
-        }
+function switchInputType(type) {
+    ["text", "voice", "file"].forEach((item) => {
+        document.getElementById(`tab-${item}`).classList.toggle("active", item === type);
+        document.getElementById(`input-${item}-container`).classList.toggle("hidden", item !== type);
+    });
+}
 
-        function buildPrompt() {
-            const moodPart = state.mood ? `\nEstado emocional do usuário: ${state.mood}` : '';
-            const goalPart = state.goal ? `\nObjetivo do usuário com a resposta: ${state.goal}` : '';
+function fillExample() {
+    document.getElementById("recipient").value = "Professor";
+    document.getElementById("message").value = SAMPLE_MESSAGE;
+    document.getElementById("mood").value = "Ansioso";
+    document.getElementById("goal").value = "Responder de forma adequada";
+    updateCharCount();
+    switchInputType("text");
+    showToast("Exemplo preenchido para a demonstração.");
+}
 
-            return `Você é um assistente especialista em comunicação social para pessoas neurodivergentes (autismo, TDAH, ansiedade social).
-Analise a situação social abaixo e responda EXATAMENTE no formato JSON especificado, sem texto adicional antes ou depois.
+function clearForm() {
+    document.getElementById("message").value = "";
+    document.getElementById("mood").value = "";
+    document.getElementById("goal").value = "Entender melhor o que aconteceu";
+    updateCharCount();
+    showToast("Campo limpo.");
+}
 
-SITUAÇÃO:
-Relação: ${state.recipient}
-Mensagem/Situação: "${state.message}"${moodPart}${goalPart}
+async function startAnalysis() {
+    const context = readFormContext();
+    const error = document.getElementById("form-error");
 
-Responda SOMENTE com este JSON (sem markdown, sem blocos de código):
+    if (context.message.length < 8) {
+        error.textContent = "Descreva a mensagem ou situação com um pouco mais de detalhe.";
+        error.classList.remove("hidden");
+        return;
+    }
+
+    error.classList.add("hidden");
+    showPanel("results");
+    showLoading();
+
+    try {
+        const settings = getSettings();
+        const result = settings.apiKey
+            ? await callGroq(buildPrompt(context), settings)
+            : await getDemoResult(context);
+
+        renderResults(result, context, !settings.apiKey);
+    } catch (error) {
+        console.error(error);
+        renderError(error);
+    } finally {
+        stopLoading();
+    }
+}
+
+function readFormContext() {
+    return {
+        recipient: document.getElementById("recipient").value,
+        message: document.getElementById("message").value.trim(),
+        mood: document.getElementById("mood").value,
+        goal: document.getElementById("goal").value
+    };
+}
+
+function buildPrompt(context) {
+    return `Você é um assistente de acessibilidade cognitiva para pessoas neurodivergentes adultas, especialmente autistas, pessoas com TDAH e pessoas com ansiedade social.
+
+Analise a situação abaixo com cuidado. Evite dramatizar. Se a mensagem for ambígua, diga que há incerteza. Não invente intenção negativa quando houver explicação neutra.
+
+Relação com a pessoa: ${context.recipient}
+Estado emocional informado pelo usuário: ${context.mood || "não informado"}
+Objetivo do usuário: ${context.goal}
+Mensagem ou situação:
+"""${context.message}"""
+
+Responda somente com JSON válido neste formato:
 {
-  "tom": "string curta: o tom provável da mensagem (ex: preocupado, neutro, irritado, formal, amigável)",
-  "resumo": "1-2 frases explicando em linguagem simples e direta o que está acontecendo",
-  "expectativas": [
-    { "icone": "nome do material symbol", "titulo": "título curto", "descricao": "descrição clara do que esperam de você" },
-    { "icone": "nome do material symbol", "titulo": "título curto", "descricao": "..." },
-    { "icone": "nome do material symbol", "titulo": "título curto", "descricao": "..." }
-  ],
+  "tom": "tom provável em até 4 palavras",
+  "confianca": "baixa|media|alta",
+  "explicacao_simples": "2 frases simples, diretas e tranquilizadoras",
+  "leitura_literal": "o que foi dito literalmente, sem interpretação extra",
+  "leitura_social": "o que a pessoa provavelmente quis comunicar, com ressalva se houver dúvida",
+  "cuidado": "um cuidado importante antes de responder",
+  "proximos_passos": ["ação concreta 1", "ação concreta 2", "ação concreta 3"],
   "sugestoes": [
-    { "rotulo": "Neutra", "cor": "slate", "texto": "texto da sugestão de resposta neutra" },
-    { "rotulo": "Assertiva", "cor": "primary", "texto": "texto da sugestão de resposta assertiva" },
-    { "rotulo": "Acolhedora", "cor": "emerald", "texto": "texto da sugestão de resposta mais calorosa/acolhedora" }
+    {"rotulo": "Neutra", "texto": "resposta pronta, curta e educada"},
+    {"rotulo": "Assertiva", "texto": "resposta pronta, clara e respeitosa"},
+    {"rotulo": "Acolhedora", "texto": "resposta pronta, mais calorosa sem submissão"}
   ]
 }
 
 Regras:
-- "resumo" deve ser em linguagem muito simples, sem jargões, como se explicando para alguém que está ansioso
-- As "expectativas" devem ser concretas e específicas à situação
-- As "sugestoes" devem ser textos prontos para enviar, respeitosos e adequados ao contexto
-- Para "icone" use nomes válidos de Material Symbols: psychology, schedule, verified, warning, chat, person, task_alt, priority_high, favorite
-- Sempre em português brasileiro`;
-        }
+- Use português brasileiro.
+- Use linguagem simples, sem jargões.
+- Não dê diagnóstico nem conselho terapêutico.
+- Respostas devem ser seguras, respeitosas e aplicáveis em contexto acadêmico/profissional.
+- Se houver risco de assédio, saúde, crise, contrato ou direito, oriente validar com profissional da área.`;
+}
 
-        // ==================== GENERIC AI CALLER ====================
-        function parseAIResponse(raw) {
-            const clean = raw.replace(/^```json?\s*/i, '').replace(/```\s*$/i, '').trim();
-            try {
-                return JSON.parse(clean);
-            } catch (e) {
-                const match = clean.match(/\{[\s\S]*\}/);
-                if (match) return JSON.parse(match[0]);
-                throw new Error('Formato de resposta inválido da IA.');
+async function callGroq(prompt, settings) {
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${settings.apiKey}`
+        },
+        body: JSON.stringify({
+            model: settings.model,
+            messages: [
+                {
+                    role: "system",
+                    content: "Você devolve apenas JSON válido para uma interface de acessibilidade cognitiva."
+                },
+                { role: "user", content: prompt }
+            ],
+            temperature: 0.25,
+            max_tokens: 1300,
+            response_format: { type: "json_object" }
+        })
+    });
+
+    if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        const message = data?.error?.message || `HTTP ${response.status}`;
+        if (response.status === 401) throw new Error("Chave de API inválida. Abra API e cole uma chave Groq válida.");
+        if (response.status === 429) throw new Error("Limite da API atingido. Aguarde um pouco ou use outra chave.");
+        throw new Error(message);
+    }
+
+    const data = await response.json();
+    const raw = data?.choices?.[0]?.message?.content;
+    if (!raw) throw new Error("A IA respondeu vazio. Tente novamente.");
+    return parseJsonResponse(raw);
+}
+
+function parseJsonResponse(raw) {
+    const cleaned = raw.replace(/^```json\s*/i, "").replace(/^```\s*/i, "").replace(/```\s*$/i, "").trim();
+    try {
+        return JSON.parse(cleaned);
+    } catch {
+        const match = cleaned.match(/\{[\s\S]*\}/);
+        if (!match) throw new Error("A IA não devolveu um JSON válido.");
+        return JSON.parse(match[0]);
+    }
+}
+
+async function getDemoResult(context) {
+    await new Promise((resolve) => setTimeout(resolve, 850));
+    const lower = context.message.toLowerCase();
+    const mentionsApi = lower.includes("api") || lower.includes("fluxo") || lower.includes("quebr");
+    const mentionsClass = lower.includes("hoje") || lower.includes("apresent");
+
+    return {
+        tom: mentionsApi ? "cobrança prática" : "neutro com urgência",
+        confianca: "media",
+        explicacao_simples: mentionsApi
+            ? "A pessoa está apontando um problema que precisa ser resolvido antes da apresentação. O foco parece ser fazer a demonstração funcionar, não atacar você."
+            : "A mensagem parece pedir clareza sobre presença, funcionamento e apresentação. Pode haver pressa, mas não é possível concluir irritação só pelo texto.",
+        leitura_literal: context.message,
+        leitura_social: mentionsClass
+            ? "Provavelmente querem que vocês mostrem o produto funcionando e expliquem rapidamente o que é, como funciona e qual problema resolve."
+            : "Provavelmente esperam uma resposta objetiva, com status do que está pronto e do que ainda falta.",
+        cuidado: "Não responda tentando se defender demais. Responda com status, próximo passo e horário de validação.",
+        proximos_passos: [
+            "Confirmar que a demonstração principal já está funcionando.",
+            "Separar uma mensagem curta para explicar o problema e a solução.",
+            "Validar a parte conceitual com alguém da área ou com o professor, se possível."
+        ],
+        sugestoes: [
+            {
+                rotulo: "Neutra",
+                texto: "Estamos ajustando o fluxo da API e vamos apresentar o funcionamento principal com uma demonstração estável."
+            },
+            {
+                rotulo: "Assertiva",
+                texto: "Identificamos a quebra no final do fluxo e estamos corrigindo agora. Também vamos levar um modo demo para garantir a apresentação."
+            },
+            {
+                rotulo: "Acolhedora",
+                texto: "Obrigado pelo aviso. Vamos corrigir a API, validar o fluxo e organizar os 5 slides com o que é, como funciona e o que resolve."
             }
-        }
+        ]
+    };
+}
 
-        async function callAI(prompt) {
-            const { provider, model, apiKey } = API_CONFIG;
+function renderResults(data, context, isDemo) {
+    lastResult = data;
+    lastContext = context;
+    document.getElementById("empty-state").classList.add("hidden");
+    document.getElementById("loading-state").classList.add("hidden");
+    document.getElementById("result-state").classList.remove("hidden");
 
-            const endpoint = 'https://api.groq.com/openai/v1/chat/completions';
+    document.getElementById("result-relation").textContent = context.recipient;
+    document.getElementById("result-tone").textContent = `Tom: ${data.tom || "incerto"}`;
+    document.getElementById("result-confidence").textContent = `${isDemo ? "Demo | " : ""}Confiança: ${normalizeConfidence(data.confianca)}`;
+    document.getElementById("result-simple").textContent = data.explicacao_simples || "Não foi possível gerar uma explicação simples.";
+    document.getElementById("result-literal").textContent = data.leitura_literal || context.message;
+    document.getElementById("result-social").textContent = data.leitura_social || "A intenção está ambígua. Vale pedir confirmação com uma pergunta curta.";
 
-            const headers = {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${apiKey}`,
-            };
+    const actions = Array.isArray(data.proximos_passos) ? data.proximos_passos : [];
+    const actionList = document.getElementById("result-actions");
+    actionList.innerHTML = "";
+    actions.concat(data.cuidado ? [`Cuidado: ${data.cuidado}`] : []).slice(0, 4).forEach((item) => {
+        const li = document.createElement("li");
+        li.className = "flex gap-3";
+        li.innerHTML = `<span class="material-symbols-outlined text-primary">check_circle</span><span></span>`;
+        li.querySelector("span:last-child").textContent = item;
+        actionList.appendChild(li);
+    });
 
-            const body = {
-                model,
-                messages: [{ role: 'user', content: prompt }],
-                temperature: 0.7,
-                max_tokens: 1200,
-                response_format: { type: "json_object" }
-            };
+    const suggestions = Array.isArray(data.sugestoes) ? data.sugestoes : [];
+    const container = document.getElementById("result-suggestions");
+    container.innerHTML = "";
+    suggestions.forEach((suggestion) => {
+        const card = document.createElement("div");
+        card.className = "suggestion";
+        const label = document.createElement("span");
+        label.className = "suggestion-label";
+        label.textContent = suggestion.rotulo || "Resposta";
+        const text = document.createElement("p");
+        text.textContent = suggestion.texto || "";
+        const copy = document.createElement("button");
+        copy.className = "icon-button";
+        copy.type = "button";
+        copy.title = "Copiar resposta";
+        copy.innerHTML = `<span class="material-symbols-outlined">content_copy</span>`;
+        copy.addEventListener("click", () => copyText(suggestion.texto || "", copy));
+        card.append(label, text, copy);
+        container.appendChild(card);
+    });
+}
 
-            const res = await fetch(endpoint, {
-                method: 'POST',
-                headers,
-                body: JSON.stringify(body)
-            });
+function copyResultSummary() {
+    if (!lastResult || !lastContext) {
+        showToast("Faça uma análise antes de copiar o resumo.");
+        return;
+    }
 
-            if (!res.ok) {
-                const errData = await res.json().catch(() => ({}));
-                const msg = errData?.error?.message || `HTTP ${res.status}`;
-                if (res.status === 429) throw new Error('QUOTA_EXCEEDED: ' + msg);
-                throw new Error(msg);
+    const actions = Array.isArray(lastResult.proximos_passos) ? lastResult.proximos_passos : [];
+    const suggestions = Array.isArray(lastResult.sugestoes) ? lastResult.sugestoes : [];
+    const summary = [
+        "Social Interpreter - resumo da análise",
+        `Relação: ${lastContext.recipient}`,
+        `Tom provável: ${lastResult.tom || "incerto"}`,
+        `Confiança: ${normalizeConfidence(lastResult.confianca)}`,
+        "",
+        "Explicação simples:",
+        lastResult.explicacao_simples || "",
+        "",
+        "Intenção provável:",
+        lastResult.leitura_social || "",
+        "",
+        "Próximos passos:",
+        ...actions.map((item, index) => `${index + 1}. ${item}`),
+        "",
+        "Respostas prontas:",
+        ...suggestions.map((item) => `${item.rotulo || "Resposta"}: ${item.texto || ""}`)
+    ].join("\n");
+
+    navigator.clipboard.writeText(summary)
+        .then(() => showToast("Resumo completo copiado."))
+        .catch(() => showToast("Não consegui copiar automaticamente."));
+}
+
+function renderError(error) {
+    document.getElementById("empty-state").classList.remove("hidden");
+    document.getElementById("loading-state").classList.add("hidden");
+    document.getElementById("result-state").classList.add("hidden");
+    showToast(error.message || "Não foi possível processar a análise.");
+}
+
+function normalizeConfidence(value) {
+    const confidence = String(value || "media").toLowerCase();
+    if (confidence.includes("alta")) return "alta";
+    if (confidence.includes("baixa")) return "baixa";
+    return "média";
+}
+
+function showLoading() {
+    document.getElementById("empty-state").classList.add("hidden");
+    document.getElementById("result-state").classList.add("hidden");
+    document.getElementById("loading-state").classList.remove("hidden");
+    const labels = ["Preparando leitura social", "Separando fato de interpretação", "Gerando respostas seguras"];
+    let index = 0;
+    document.getElementById("loading-bar").style.width = "18%";
+    loadingTimer = setInterval(() => {
+        index = (index + 1) % labels.length;
+        document.getElementById("loading-status").textContent = labels[index];
+        document.getElementById("loading-bar").style.width = `${Math.min(92, 28 + index * 24 + Math.random() * 12)}%`;
+    }, 900);
+}
+
+function stopLoading() {
+    if (loadingTimer) clearInterval(loadingTimer);
+    loadingTimer = null;
+    document.getElementById("loading-bar").style.width = "100%";
+}
+
+async function copyText(text, button) {
+    try {
+        await navigator.clipboard.writeText(text);
+        button.innerHTML = `<span class="material-symbols-outlined">check</span>`;
+        showToast("Resposta copiada.");
+        setTimeout(() => {
+            button.innerHTML = `<span class="material-symbols-outlined">content_copy</span>`;
+        }, 1400);
+    } catch {
+        showToast("Não consegui copiar automaticamente.");
+    }
+}
+
+function showToast(message) {
+    const toast = document.getElementById("toast");
+    toast.textContent = message;
+    toast.classList.remove("hidden");
+    clearTimeout(window.toastTimer);
+    window.toastTimer = setTimeout(() => toast.classList.add("hidden"), 3200);
+}
+
+function toggleRecording() {
+    if (!("webkitSpeechRecognition" in window) && !("SpeechRecognition" in window)) {
+        showToast("Este navegador não suporta ditado por voz. Você pode digitar ou enviar áudio.");
+        return;
+    }
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!recognition) {
+        recognition = new SpeechRecognition();
+        recognition.lang = "pt-BR";
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        recognition.onstart = () => {
+            isRecording = true;
+            document.getElementById("mic-btn").classList.add("recording");
+            document.getElementById("mic-status").textContent = "Gravando. Toque novamente para parar.";
+            document.getElementById("voice-transcript-preview").classList.remove("hidden");
+            document.getElementById("voice-transcript-preview").textContent = "Ouvindo...";
+        };
+        recognition.onresult = (event) => {
+            let finalText = "";
+            let interimText = "";
+            for (let i = event.resultIndex; i < event.results.length; i += 1) {
+                const transcript = event.results[i][0].transcript;
+                if (event.results[i].isFinal) finalText += transcript;
+                else interimText += transcript;
             }
+            if (finalText) appendToMessage(finalText);
+            document.getElementById("voice-transcript-preview").textContent = finalText || interimText || "Ouvindo...";
+        };
+        recognition.onerror = () => {
+            stopRecording();
+            showToast("Não consegui acessar o microfone.");
+        };
+        recognition.onend = stopRecording;
+    }
 
-            const data = await res.json();
-            const raw = data?.choices?.[0]?.message?.content || '';
-            if (!raw) throw new Error('Resposta vazia da IA.');
-            return parseAIResponse(raw);
+    if (isRecording) {
+        recognition.stop();
+    } else {
+        recognition.start();
+    }
+}
+
+function stopRecording() {
+    isRecording = false;
+    document.getElementById("mic-btn").classList.remove("recording");
+    document.getElementById("mic-status").textContent = "Toque para ditar a situação";
+}
+
+async function handleGenericUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const preview = document.getElementById("file-transcript-preview");
+    const status = document.getElementById("file-upload-status");
+    preview.classList.remove("hidden");
+    preview.textContent = "Extraindo texto...";
+    status.textContent = "Processando arquivo";
+
+    try {
+        let text = "";
+        if (file.type.startsWith("audio/")) {
+            text = await transcribeAudio(file);
+        } else if (file.type.startsWith("image/")) {
+            text = await readImage(file, preview);
+        } else if (file.type === "application/pdf") {
+            text = await readPdf(file, preview);
+        } else {
+            throw new Error("Formato não suportado. Use áudio, imagem ou PDF.");
         }
 
-        // ==================== RENDER RESULTS ====================
-        function renderResults(data) {
-            if (window._loadingInterval) clearInterval(window._loadingInterval);
+        if (!text.trim()) throw new Error("Não encontrei texto legível neste arquivo.");
+        appendToMessage(text.trim());
+        preview.textContent = "Texto extraído e colocado no campo principal.";
+        switchInputType("text");
+    } catch (error) {
+        preview.textContent = error.message || "Falha ao processar arquivo.";
+    } finally {
+        status.textContent = "Print, PDF ou áudio";
+        event.target.value = "";
+    }
+}
 
-            // Badge
-            document.getElementById('result-relation-badge').textContent = state.recipient;
-            document.getElementById('result-tone-badge').textContent = data.tom ? `Tom: ${data.tom}` : '';
+async function transcribeAudio(file) {
+    const { apiKey } = getSettings();
+    if (!apiKey) {
+        throw new Error("Para transcrever áudio enviado, abra API e salve uma chave Groq.");
+    }
 
-            // Summary
-            document.getElementById('result-happening').textContent = data.resumo || '';
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("model", "whisper-large-v3-turbo");
+    formData.append("language", "pt");
+    formData.append("response_format", "json");
 
-            // Expectations
-            const expList = document.getElementById('result-expectations');
-            expList.innerHTML = '';
-            (data.expectativas || []).forEach(exp => {
-                expList.innerHTML += `
-      <li class="flex gap-4 items-start">
-        <div class="bg-primary/10 p-2 rounded-lg text-primary flex-shrink-0">
-          <span class="material-symbols-outlined">${exp.icone || 'check'}</span>
-        </div>
-        <div>
-          <h3 class="font-semibold text-base">${exp.titulo || ''}</h3>
-          <p class="text-slate-500 text-sm mt-1">${exp.descricao || ''}</p>
-        </div>
-      </li>`;
-            });
+    const response = await fetch("https://api.groq.com/openai/v1/audio/transcriptions", {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${apiKey}` },
+        body: formData
+    });
 
-            // Suggestions
-            const sugContainer = document.getElementById('result-suggestions');
-            sugContainer.innerHTML = '';
-            const corMap = {
-                'slate': 'bg-slate-100 text-slate-600',
-                'primary': 'bg-primary/10 text-primary',
-                'emerald': 'bg-emerald-100 text-emerald-700',
-            };
-            (data.sugestoes || []).forEach((sug, i) => {
-                const badgeClass = corMap[sug.cor] || corMap['slate'];
-                sugContainer.innerHTML += `
-      <div class="bg-white rounded-xl p-6 shadow-sm border border-slate-100">
-        <div class="flex justify-between items-start mb-4">
-          <span class="${badgeClass} px-3 py-1 rounded-full text-xs font-bold tracking-wider uppercase">${sug.rotulo || 'Sugestão'}</span>
-          <button class="copy-btn text-primary hover:bg-primary/10 p-2 rounded-full transition-colors" onclick="copyText(this, '${escapeForAttr(sug.texto)}')" title="Copiar resposta">
-            <span class="material-symbols-outlined">content_copy</span>
-          </button>
-        </div>
-        <p class="text-slate-700 italic leading-relaxed text-sm">"${sug.texto || ''}"</p>
-      </div>`;
-            });
-        }
+    if (!response.ok) {
+        if (response.status === 401) throw new Error("Chave Groq inválida para transcrição.");
+        throw new Error("Não consegui transcrever o áudio agora.");
+    }
 
-        function escapeForAttr(str) {
-            return (str || '').replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, ' ');
-        }
+    const data = await response.json();
+    return data.text || "";
+}
 
-        async function copyText(btn, text) {
-            const decoded = text.replace(/&quot;/g, '"');
-            try {
-                await navigator.clipboard.writeText(decoded);
-                const icon = btn.querySelector('.material-symbols-outlined');
-                icon.textContent = 'check';
-                btn.style.color = '#16a34a';
-                setTimeout(() => { icon.textContent = 'content_copy'; btn.style.color = ''; }, 2000);
-            } catch (e) { }
-        }
+async function readImage(file, preview) {
+    preview.textContent = "Lendo imagem com OCR. Pode levar alguns segundos.";
+    const worker = await Tesseract.createWorker("por");
+    const result = await worker.recognize(file);
+    await worker.terminate();
+    return result.data.text || "";
+}
 
-        // ==================== RESET ====================
-        function resetAndStart() {
-            document.getElementById('recipient').value = '';
-            document.getElementById('message').value = '';
-            document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
-            document.querySelectorAll('.goal-item').forEach(i => {
-                i.classList.remove('selected');
-                const check = i.querySelector('.goal-check');
-                if (check) { check.style.backgroundColor = ''; check.style.borderColor = ''; check.querySelector('.material-symbols-outlined').classList.add('hidden'); }
-            });
-            state = { recipient: '', message: '', mood: '', goal: '' };
-            goToScreen('screen-entry');
-        }
+async function readPdf(file, preview) {
+    preview.textContent = "Lendo páginas do PDF.";
+    pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js";
+    const pdf = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
+    const parts = [];
+    for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
+        const page = await pdf.getPage(pageNumber);
+        const content = await page.getTextContent();
+        parts.push(content.items.map((item) => item.str).join(" "));
+    }
+    return parts.join("\n");
+}
 
-        // ==================== AUDIO RECORDING ====================
-        let recognition = null;
-        let isRecording = false;
+function appendToMessage(text) {
+    const input = document.getElementById("message");
+    input.value = `${input.value}${input.value.trim() ? "\n" : ""}${text}`.trim();
+    updateCharCount();
+}
 
-        function switchInputType(type) {
-            const tabs = {
-                'text': document.getElementById('tab-text'),
-                'voice': document.getElementById('tab-voice'),
-                'file': document.getElementById('tab-file')
-            };
-            const containers = {
-                'text': document.getElementById('input-text-container'),
-                'voice': document.getElementById('input-voice-container'),
-                'file': document.getElementById('input-file-container')
-            };
+function updateCharCount() {
+    const input = document.getElementById("message");
+    const counter = document.getElementById("char-count");
+    if (!input || !counter) return;
+    const count = input.value.trim().length;
+    counter.textContent = `${count} ${count === 1 ? "caractere" : "caracteres"}`;
+    counter.classList.toggle("text-amber-600", count > 3500);
+}
 
-            for (const key in tabs) {
-                if (key === type) {
-                    tabs[key].classList.replace('text-slate-500', 'text-primary');
-                    tabs[key].classList.add('bg-white', 'shadow-sm');
-                    tabs[key].classList.remove('hover:text-slate-700');
-                    containers[key].classList.remove('hidden');
-                    if(key !== 'text') containers[key].classList.add('flex');
-                } else {
-                    tabs[key].classList.remove('bg-white', 'shadow-sm', 'text-primary');
-                    tabs[key].classList.add('text-slate-500', 'hover:text-slate-700');
-                    containers[key].classList.add('hidden');
-                    containers[key].classList.remove('flex');
-                }
-            }
-        }
-
-        function toggleRecording() {
-            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-                alert('Gravação de voz não suportada neste navegador. Você ainda pode digitar seu texto.');
-                return;
-            }
-
-            const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!recognition) {
-                recognition = new SpeechRec();
-                recognition.lang = 'pt-BR';
-                recognition.continuous = true;
-                recognition.interimResults = true;
-
-                recognition.onstart = () => {
-                    isRecording = true;
-                    document.getElementById('mic-btn').classList.add('recording');
-                    document.getElementById('mic-btn').classList.replace('bg-slate-200', 'bg-red-500');
-                    document.getElementById('mic-btn').classList.replace('text-slate-600', 'text-white');
-                    document.getElementById('mic-status').textContent = 'Gravando... Toque no botão para parar';
-                    document.getElementById('voice-transcript-preview').classList.remove('hidden');
-                    document.getElementById('voice-transcript-preview').textContent = 'Ouvindo... (fale agora)';
-                };
-
-                recognition.onresult = (event) => {
-                    let finalTranscript = '';
-                    let interimTranscript = '';
-                    for (let i = event.resultIndex; i < event.results.length; ++i) {
-                        if (event.results[i].isFinal) {
-                            finalTranscript += event.results[i][0].transcript;
-                        } else {
-                            interimTranscript += event.results[i][0].transcript;
-                        }
-                    }
-                    const ta = document.getElementById('message');
-                    if (finalTranscript) {
-                        ta.value += (ta.value && !ta.value.endsWith(' ') ? ' ' : '') + finalTranscript;
-                    }
-                    document.getElementById('voice-transcript-preview').textContent = finalTranscript || interimTranscript || 'Ouvindo...';
-                };
-
-                recognition.onerror = (e) => {
-                    console.error('Erro no microfone', e);
-                    stopRecording();
-                };
-
-                recognition.onend = () => {
-                    stopRecording();
-                };
-            }
-
-            if (isRecording) {
-                recognition.stop();
-                stopRecording();
-            } else {
-                recognition.start();
-            }
-        }
-
-        function stopRecording() {
-            isRecording = false;
-            document.getElementById('mic-btn').classList.remove('recording');
-            document.getElementById('mic-btn').classList.replace('bg-red-500', 'bg-slate-200');
-            document.getElementById('mic-btn').classList.replace('text-white', 'text-slate-600');
-            document.getElementById('mic-status').textContent = 'Toque aqui para falar o que aconteceu';
-            
-            setTimeout(() => {
-                if(document.getElementById('message').value.trim() !== "") {
-                   switchInputType('text');
-                }
-            }, 1000);
-        }
-
-        async function handleGenericUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const preview = document.getElementById('file-transcript-preview');
-            const status = document.getElementById('file-upload-status');
-            preview.classList.remove('hidden');
-            preview.textContent = 'Extraindo texto do arquivo... Aguarde.';
-            status.textContent = 'Processando...';
-
-            try {
-                let extractedText = '';
-
-                // Is it an Audio? -> Whisper via Groq
-                if (file.type.startsWith('audio/')) {
-                    const formData = new FormData();
-                    formData.append('file', file);
-                    formData.append('model', 'whisper-large-v3-turbo');
-                    formData.append('language', 'pt');
-                    formData.append('response_format', 'json');
-
-                    const res = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
-                        method: 'POST',
-                        headers: { 'Authorization': `Bearer ${API_CONFIG.apiKey}` },
-                        body: formData
-                    });
-
-                    if (!res.ok) throw new Error(await res.text());
-                    const data = await res.json();
-                    extractedText = data.text;
-                } 
-                // Is it an Image? -> Tesseract.js OCR
-                else if (file.type.startsWith('image/')) {
-                    preview.textContent = 'Lendo a imagem (OCR)... Pode levar uns instantes.';
-                    const worker = await Tesseract.createWorker('por');
-                    const ret = await worker.recognize(file);
-                    await worker.terminate();
-                    extractedText = ret.data.text;
-                }
-                // Is it a PDF? -> PDF.js
-                else if (file.type === 'application/pdf') {
-                    preview.textContent = 'Lendo páginas do PDF...';
-                    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
-                    const arrayBuffer = await file.arrayBuffer();
-                    const pdf = await pdfjsLib.getDocument({data: arrayBuffer}).promise;
-                    extractedText = "";
-                    for (let i = 1; i <= pdf.numPages; i++) {
-                        const page = await pdf.getPage(i);
-                        const textContent = await page.getTextContent();
-                        extractedText += textContent.items.map(item => item.str).join(' ') + '';
-                    }
-                } else {
-                    throw new Error('Formato de arquivo não suportado. Envie Imagem, PDF ou Áudio.');
-                }
-
-                if (extractedText && extractedText.trim().length > 0) {
-                    const ta = document.getElementById('message');
-                    ta.value += (ta.value && !ta.value.endsWith(' ') ? '': '') + extractedText.trim();
-                    preview.textContent = 'Leitura concluída com sucesso!';
-                    setTimeout(() => {
-                        switchInputType('text');
-                    }, 1500);
-                } else {
-                    preview.textContent = 'Não conseguimos extrair texto deste arquivo.';
-                }
-            } catch (err) {
-                console.error('Upload Error:', err);
-                preview.textContent = 'Erro ao processar: ' + (err.message || 'Falha na extração.');
-            } finally {
-                status.textContent = 'Fotos (Print), PDFs ou Áudios';
-                event.target.value = ''; // reseta input config
-            }
-        }
-
-        // Init
-        document.addEventListener('DOMContentLoaded', () => {
-            document.querySelectorAll('.screen').forEach(s => { if (!s.classList.contains('active')) s.style.display = 'none'; });
-        });
+document.addEventListener("DOMContentLoaded", () => {
+    updateApiStatus();
+    updateCharCount();
+    document.getElementById("message").addEventListener("input", updateCharCount);
+});
