@@ -179,6 +179,7 @@ function buildPrompt(context) {
     return `Você é um assistente de acessibilidade cognitiva para pessoas neurodivergentes adultas, especialmente autistas, pessoas com TDAH e pessoas com ansiedade social.
 
 Analise a situação abaixo com cuidado. Evite dramatizar. Se a mensagem for ambígua, diga que há incerteza. Não invente intenção negativa quando houver explicação neutra.
+Mesmo com pouco contexto, não responda apenas que falta contexto. Faça a melhor leitura possível a partir das palavras usadas, da relação informada, do estado emocional e do objetivo do usuário. Se a confiança for baixa, mantenha a conclusão cuidadosa, mas ainda entregue uma interpretação provável e respostas prontas.
 
 Relação com a pessoa: ${context.recipient}
 Estado emocional informado pelo usuário: ${context.mood || "não informado"}
@@ -205,6 +206,7 @@ Responda somente com JSON válido neste formato:
 Regras:
 - Use português brasileiro.
 - Use linguagem simples, sem jargões.
+- Sempre entregue uma interpretação útil; evite frases como "não há contexto suficiente" como resposta principal.
 - Não dê diagnóstico nem conselho terapêutico.
 - Nunca mencione detalhes técnicos, nomes de integração, nomes de arquivo, formato interno, código, bastidores do sistema ou modo de apresentação.
 - Se precisar falar sobre funcionamento técnico, use termos simples como "ferramenta", "análise", "demonstração" ou "conexão".
@@ -295,6 +297,170 @@ function parseJsonResponse(raw) {
         if (!match) throw new Error("A IA não devolveu um JSON válido.");
         return JSON.parse(match[0]);
     }
+}
+
+function getGenericDemoResult(context) {
+    const message = context.message.trim();
+    const lower = message.toLowerCase();
+    const relation = String(context.recipient || "Pessoa").toLowerCase();
+    const hasAny = (terms) => terms.some((term) => lower.includes(term));
+    const isFormalRelation = ["professor", "chefe", "cliente", "desconhecido"].includes(relation);
+    const isQuestion = lower.includes("?") || hasAny(["por que", "porque", "como", "quando", "onde", "quem", "qual", "pode", "consegue", "você vai", "voce vai"]);
+    const isRequest = hasAny(["preciso", "precisamos", "pode", "consegue", "manda", "envia", "me ajuda", "ajuda", "faz", "fazer", "resolve", "confirma"]);
+    const isUrgent = hasAny(["agora", "urgente", "hoje", "amanhã", "amanha", "prazo", "rápido", "rapido", "assim que puder"]);
+    const isConflict = hasAny(["não gostei", "nao gostei", "chateado", "chateada", "decepcion", "problema", "errado", "erro", "atras", "por que você", "por que voce", "você não", "voce nao"]);
+    const isPositive = hasAny(["obrigad", "valeu", "parabéns", "parabens", "legal", "gostei", "ótimo", "otimo", "perfeito"]);
+    const isVeryShort = message.length < 45;
+
+    if (isConflict) {
+        return {
+            tom: "cobrança ou incômodo",
+            confianca: "media",
+            explicacao_simples: "A mensagem parece trazer algum incômodo ou cobrança. A melhor saída é responder com calma, pedir o ponto específico e evitar assumir culpa antes de entender.",
+            leitura_literal: message,
+            leitura_social: "A pessoa provavelmente quer sinalizar que algo não saiu como ela esperava. Pode haver emoção envolvida, então vale reconhecer o incômodo sem se defender de imediato.",
+            cuidado: "Não responda no impulso. Separe o que foi dito literalmente da interpretação antes de decidir o tom.",
+            proximos_passos: [
+                "Reconhecer que a pessoa parece incomodada.",
+                "Perguntar qual ponto específico precisa ser esclarecido.",
+                "Responder com uma explicação curta depois que o fato principal estiver claro."
+            ],
+            sugestoes: [
+                {
+                    rotulo: "Neutra",
+                    texto: "Entendi que isso te incomodou. Pode me explicar qual parte foi o problema para eu responder direito?"
+                },
+                {
+                    rotulo: "Assertiva",
+                    texto: "Quero resolver isso com clareza, mas preciso entender exatamente o que aconteceu antes de tirar uma conclusão."
+                },
+                {
+                    rotulo: "Acolhedora",
+                    texto: "Sinto muito que tenha ficado assim. Quero entender melhor o que aconteceu para conversarmos com calma."
+                }
+            ]
+        };
+    }
+
+    if (isRequest || isUrgent) {
+        return {
+            tom: isUrgent ? "direto e urgente" : "pedido objetivo",
+            confianca: "media",
+            explicacao_simples: "A mensagem parece pedir uma ação, confirmação ou resposta prática. Responder de forma curta e concreta tende a ser mais seguro.",
+            leitura_literal: message,
+            leitura_social: "A pessoa provavelmente espera que você confirme se entendeu, diga se consegue fazer algo ou peça um detalhe que falta para agir.",
+            cuidado: "Evite prometer mais do que você pode cumprir. Se houver dúvida, confirme prazo, expectativa ou tarefa antes de responder de forma definitiva.",
+            proximos_passos: [
+                "Identificar qual ação a pessoa está pedindo.",
+                "Responder se você consegue ou não consegue fazer isso.",
+                "Confirmar prazo ou detalhe importante se ainda houver dúvida."
+            ],
+            sugestoes: [
+                {
+                    rotulo: "Neutra",
+                    texto: "Entendi. Vou verificar isso e te retorno com uma resposta objetiva."
+                },
+                {
+                    rotulo: "Assertiva",
+                    texto: "Consigo seguir, mas preciso confirmar um ponto antes: o que exatamente você espera de mim agora?"
+                },
+                {
+                    rotulo: "Acolhedora",
+                    texto: "Obrigado por avisar. Vou me organizar e confirmar os detalhes para fazer do jeito certo."
+                }
+            ]
+        };
+    }
+
+    if (isQuestion) {
+        return {
+            tom: isFormalRelation ? "objetivo e formal" : "curioso ou direto",
+            confianca: "media",
+            explicacao_simples: "A mensagem parece buscar uma resposta ou confirmação. Você pode responder ao ponto principal e pedir complemento apenas se algo estiver ambíguo.",
+            leitura_literal: message,
+            leitura_social: "A pessoa provavelmente quer reduzir uma dúvida, combinar algo ou entender sua posição sobre o assunto.",
+            cuidado: "Não leia a pergunta automaticamente como crítica. Muitas perguntas são apenas pedidos de informação.",
+            proximos_passos: [
+                "Responder primeiro à pergunta principal.",
+                "Manter o tom simples e respeitoso.",
+                "Pedir confirmação se a pergunta tiver mais de uma interpretação."
+            ],
+            sugestoes: [
+                {
+                    rotulo: "Neutra",
+                    texto: "Entendi sua pergunta. Pelo que eu entendi, a resposta é esta; se você quis dizer outro ponto, me confirma?"
+                },
+                {
+                    rotulo: "Assertiva",
+                    texto: "Posso responder, sim. Para evitar mal-entendido, você quer saber sobre qual parte exatamente?"
+                },
+                {
+                    rotulo: "Acolhedora",
+                    texto: "Claro, posso te responder. Quero só garantir que entendi bem o que você está perguntando."
+                }
+            ]
+        };
+    }
+
+    if (isPositive) {
+        return {
+            tom: "positivo ou cordial",
+            confianca: "media",
+            explicacao_simples: "A mensagem parece ter um tom positivo, de agradecimento ou aprovação. Uma resposta simples de reconhecimento costuma ser suficiente.",
+            leitura_literal: message,
+            leitura_social: "A pessoa provavelmente está sinalizando concordância, satisfação ou abertura para continuar a conversa de forma tranquila.",
+            cuidado: "Não complique a resposta se a mensagem já veio positiva. Responder com clareza e gentileza tende a funcionar bem.",
+            proximos_passos: [
+                "Agradecer ou reconhecer a mensagem.",
+                "Confirmar o próximo passo se existir algo a fazer.",
+                "Manter a resposta curta."
+            ],
+            sugestoes: [
+                {
+                    rotulo: "Neutra",
+                    texto: "Obrigado por avisar. Fico à disposição para o próximo passo."
+                },
+                {
+                    rotulo: "Assertiva",
+                    texto: "Obrigado. Vou seguir com isso e aviso se precisar confirmar algum detalhe."
+                },
+                {
+                    rotulo: "Acolhedora",
+                    texto: "Obrigado, fico feliz em saber. Vou continuar acompanhando com atenção."
+                }
+            ]
+        };
+    }
+
+    return {
+        tom: isVeryShort ? "curto e ambíguo" : "neutro e cuidadoso",
+        confianca: isVeryShort ? "baixa" : "media",
+        explicacao_simples: "A mensagem permite uma leitura inicial, mas ainda pede cuidado. A interpretação mais segura é responder ao que está explícito e fazer uma pergunta curta se faltar algum detalhe.",
+        leitura_literal: message,
+        leitura_social: isVeryShort
+            ? "Por ser curta, a mensagem provavelmente funciona como confirmação, reação ou abertura para você continuar. O tom não parece necessariamente negativo sem outros sinais."
+            : "A pessoa provavelmente está comunicando uma necessidade, opinião ou expectativa. Como não há sinais fortes de conflito, vale manter uma resposta clara, neutra e aberta.",
+        cuidado: "Não preencha as lacunas com uma interpretação negativa. Use uma resposta que confirme entendimento e deixe espaço para a pessoa explicar melhor.",
+        proximos_passos: [
+            "Responder primeiro ao que foi dito de forma literal.",
+            "Usar uma frase curta e neutra.",
+            "Pedir esclarecimento apenas sobre o ponto que ainda está incerto."
+        ],
+        sugestoes: [
+            {
+                rotulo: "Neutra",
+                texto: "Entendi. Para eu responder do jeito certo, pode me confirmar qual é o ponto principal?"
+            },
+            {
+                rotulo: "Assertiva",
+                texto: "Quero responder com clareza. Pelo que entendi, o ponto é esse; se não for, me explica melhor?"
+            },
+            {
+                rotulo: "Acolhedora",
+                texto: "Quero entender bem antes de responder. Pode me dar um pouco mais de detalhe sobre o que você quis dizer?"
+            }
+        ]
+    };
 }
 
 async function getDemoResult(context) {
@@ -407,33 +573,7 @@ async function getDemoResult(context) {
         };
     }
 
-    return {
-        tom: "ambíguo",
-        confianca: "media",
-        explicacao_simples: "A mensagem não tem contexto suficiente para uma conclusão segura. A melhor resposta é pedir esclarecimento de forma calma e direta.",
-        leitura_literal: context.message,
-        leitura_social: "Pode haver uma expectativa ou cobrança implícita, mas faltam detalhes. Pedir contexto evita responder de forma errada.",
-        cuidado: "Não assuma automaticamente que a pessoa está com raiva. Também não aceite culpa antes de entender a situação.",
-        proximos_passos: [
-            "Perguntar qual parte a pessoa quer esclarecer.",
-            "Responder em tom calmo e curto.",
-            "Só tomar uma decisão depois de entender melhor o contexto."
-        ],
-        sugestoes: [
-            {
-                rotulo: "Neutra",
-                texto: "Entendi. Pode me explicar melhor o que você quis dizer para eu responder da forma certa?"
-            },
-            {
-                rotulo: "Assertiva",
-                texto: "Quero responder com clareza, mas preciso entender melhor a situação antes. Qual ponto exatamente te incomodou?"
-            },
-            {
-                rotulo: "Acolhedora",
-                texto: "Quero entender melhor para não interpretar errado. Pode me contar o que aconteceu do seu ponto de vista?"
-            }
-        ]
-    };
+    return getGenericDemoResult(context);
 }
 
 function renderResults(data, context, isDemo) {

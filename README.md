@@ -79,7 +79,7 @@ Ao carregar, o app salva a chave no navegador e remove o fragmento da barra de e
 
 ## Modo demo
 
-Se nenhuma chave for configurada, o app entra em modo demo. Isso garante que a apresentação funcione mesmo se a API estiver fora, sem crédito ou com limite de uso.
+O demo público carrega uma chave padrão em `config.demo.js`. Se essa chave for removida ou ficar indisponível, o app entra em modo demo offline. Isso garante que a apresentação funcione mesmo se a API estiver fora, sem crédito ou com limite de uso.
 
 ## Recursos para apresentação
 
