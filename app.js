@@ -4,7 +4,7 @@ const STORAGE_KEYS = {
 };
 
 const DEFAULT_MODEL = "llama-3.3-70b-versatile";
-const SAMPLE_MESSAGE = "O professor escreveu no grupo: \"O que precisa ter na apresentação: o que é, como funciona, o que resolve. 5 slides. Mostrando como funciona vocês vêm hoje?? A API está quebrando no final do fluxo. Validar com o profissional da área.\"";
+const SAMPLE_MESSAGE = "O professor escreveu no grupo: \"Vocês vêm hoje? Preciso ver a apresentação funcionando e entender claramente o que é o projeto, como funciona e qual problema ele resolve. Lembrem de validar a proposta com um profissional da área.\"";
 let recognition = null;
 let isRecording = false;
 let loadingTimer = null;
