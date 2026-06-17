@@ -260,37 +260,39 @@ function parseJsonResponse(raw) {
 async function getDemoResult(context) {
     await new Promise((resolve) => setTimeout(resolve, 850));
     const lower = context.message.toLowerCase();
-    const mentionsApi = lower.includes("api") || lower.includes("fluxo") || lower.includes("quebr");
-    const mentionsClass = lower.includes("hoje") || lower.includes("apresent");
+    const mentionsClass = lower.includes("hoje") || lower.includes("apresent") || lower.includes("professor");
+    const mentionsValidation = lower.includes("validar") || lower.includes("profissional");
 
     return {
-        tom: mentionsApi ? "cobrança prática" : "neutro com urgência",
+        tom: mentionsClass ? "objetivo e urgente" : "neutro com urgência",
         confianca: "media",
-        explicacao_simples: mentionsApi
-            ? "A pessoa está apontando um problema que precisa ser resolvido antes da apresentação. O foco parece ser fazer a demonstração funcionar, não atacar você."
-            : "A mensagem parece pedir clareza sobre presença, funcionamento e apresentação. Pode haver pressa, mas não é possível concluir irritação só pelo texto.",
+        explicacao_simples: mentionsClass
+            ? "A pessoa está pedindo uma demonstração clara e objetiva do projeto. Parece haver urgência, mas não dá para concluir que a mensagem é uma bronca só pelo texto."
+            : "A mensagem parece pedir uma resposta objetiva. Vale responder com calma, confirmando o que você entendeu e o próximo passo.",
         leitura_literal: context.message,
         leitura_social: mentionsClass
-            ? "Provavelmente querem que vocês mostrem o produto funcionando e expliquem rapidamente o que é, como funciona e qual problema resolve."
+            ? "Provavelmente esperam que vocês mostrem o app funcionando e expliquem, de forma simples, o que é, como funciona e qual problema resolve."
             : "Provavelmente esperam uma resposta objetiva, com status do que está pronto e do que ainda falta.",
-        cuidado: "Não responda tentando se defender demais. Responda com status, próximo passo e horário de validação.",
+        cuidado: mentionsValidation
+            ? "Não apresente a ferramenta como diagnóstico. Explique que é um apoio de comunicação e cite a validação com profissional da área."
+            : "Evite responder se justificando demais. Prefira confirmar presença, objetivo da apresentação e próximo passo.",
         proximos_passos: [
             "Confirmar que a demonstração principal já está funcionando.",
-            "Separar uma mensagem curta para explicar o problema e a solução.",
-            "Validar a parte conceitual com alguém da área ou com o professor, se possível."
+            "Preparar uma explicação curta: o que é, como funciona e o que resolve.",
+            "Separar um exemplo realista para mostrar antes e depois da interpretação."
         ],
         sugestoes: [
             {
                 rotulo: "Neutra",
-                texto: "Estamos ajustando o fluxo da API e vamos apresentar o funcionamento principal com uma demonstração estável."
+                texto: "Sim, vamos apresentar hoje. Vamos mostrar o app funcionando e explicar de forma objetiva o que é, como funciona e qual problema resolve."
             },
             {
                 rotulo: "Assertiva",
-                texto: "Identificamos a quebra no final do fluxo e estamos corrigindo agora. Também vamos levar um modo demo para garantir a apresentação."
+                texto: "Vamos levar uma demonstração direta do produto, com um exemplo de uso e os 5 slides organizados nesses três pontos: o que é, como funciona e o que resolve."
             },
             {
                 rotulo: "Acolhedora",
-                texto: "Obrigado pelo aviso. Vamos corrigir a API, validar o fluxo e organizar os 5 slides com o que é, como funciona e o que resolve."
+                texto: "Obrigado pela orientação. Vamos organizar a apresentação com esses pontos e mostrar uma situação prática para ficar claro como o Social Interpreter ajuda o usuário."
             }
         ]
     };
