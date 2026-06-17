@@ -300,39 +300,137 @@ function parseJsonResponse(raw) {
 async function getDemoResult(context) {
     await new Promise((resolve) => setTimeout(resolve, 850));
     const lower = context.message.toLowerCase();
-    const mentionsClass = lower.includes("hoje") || lower.includes("apresent") || lower.includes("professor");
-    const mentionsValidation = lower.includes("validar") || lower.includes("profissional");
+    const hasAny = (terms) => terms.some((term) => lower.includes(term));
+    const isFriendDisappointed = hasAny([
+        "por que voce fez isso",
+        "por que você fez isso",
+        "poderia contar com voce",
+        "poderia contar com você",
+        "decepcion",
+        "chatead",
+        "magoei",
+        "magoou"
+    ]);
+    const isApologyContext = hasAny(["desculpa", "foi mal", "errei", "me desculp", "perdão"]);
+    const isWorkOrSchool = hasAny(["professor", "chefe", "trabalho", "prazo", "apresent", "reunião", "reuniao", "entrega"]);
+    const isInvitationOrSchedule = hasAny(["você vem", "vocês vêm", "hoje", "amanhã", "que horas", "pode vir", "encontro"]);
+
+    if (isFriendDisappointed) {
+        return {
+            tom: "chateado e cobrando",
+            confianca: "media",
+            explicacao_simples: "A pessoa parece magoada e quer entender uma atitude sua. Ela provavelmente espera reconhecimento do sentimento dela e uma explicação calma.",
+            leitura_literal: context.message,
+            leitura_social: "A frase pode significar: 'eu esperava apoio de você e me senti decepcionado'. Não é preciso aceitar culpa automaticamente, mas vale perguntar qual situação causou isso.",
+            cuidado: "Evite responder no impulso ou se defender de forma agressiva. Primeiro peça clareza e reconheça que a pessoa parece chateada.",
+            proximos_passos: [
+                "Perguntar exatamente qual atitude incomodou a pessoa.",
+                "Reconhecer que ela parece chateada, sem assumir culpa antes de entender.",
+                "Explicar sua intenção com calma depois que o contexto ficar claro."
+            ],
+            sugestoes: [
+                {
+                    rotulo: "Neutra",
+                    texto: "Entendi que você ficou chateado. Pode me explicar melhor o que eu fiz para eu entender a situação?"
+                },
+                {
+                    rotulo: "Assertiva",
+                    texto: "Eu quero entender antes de responder. Não foi minha intenção te decepcionar, mas preciso saber exatamente do que você está falando."
+                },
+                {
+                    rotulo: "Acolhedora",
+                    texto: "Sinto muito que você tenha se sentido assim. Eu me importo com isso e quero entender o que aconteceu para conversar melhor com você."
+                }
+            ]
+        };
+    }
+
+    if (isApologyContext) {
+        return {
+            tom: "pedido de reparo",
+            confianca: "media",
+            explicacao_simples: "A situação parece envolver um erro ou mal-entendido. Uma boa resposta deve reconhecer o problema e combinar um próximo passo claro.",
+            leitura_literal: context.message,
+            leitura_social: "Provavelmente existe uma expectativa de responsabilidade, explicação ou reparo. Responder com calma ajuda a reduzir conflito.",
+            cuidado: "Evite prometer algo que você não pode cumprir. Seja honesto sobre o que aconteceu e sobre o que você pode fazer agora.",
+            proximos_passos: [
+                "Reconhecer o incômodo da outra pessoa.",
+                "Explicar sua intenção de forma curta.",
+                "Propor uma forma concreta de resolver ou evitar repetição."
+            ],
+            sugestoes: [
+                {
+                    rotulo: "Neutra",
+                    texto: "Entendi. Vou rever o que aconteceu e te responder com mais clareza para resolvermos isso."
+                },
+                {
+                    rotulo: "Assertiva",
+                    texto: "Eu reconheço que isso causou um problema. Minha intenção não foi essa, e posso explicar melhor o que aconteceu."
+                },
+                {
+                    rotulo: "Acolhedora",
+                    texto: "Desculpa pelo incômodo. Quero entender melhor e ajustar o que for possível para não deixar isso mal resolvido."
+                }
+            ]
+        };
+    }
+
+    if (isWorkOrSchool || isInvitationOrSchedule) {
+        return {
+            tom: isInvitationOrSchedule ? "objetivo e urgente" : "objetivo e formal",
+            confianca: "media",
+            explicacao_simples: "A pessoa está pedindo uma resposta prática. O mais importante é confirmar o que você entendeu e dizer qual será o próximo passo.",
+            leitura_literal: context.message,
+            leitura_social: isWorkOrSchool
+                ? "Provavelmente esperam organização, clareza e uma resposta objetiva sobre o que será entregue ou apresentado."
+                : "Provavelmente querem confirmar presença, horário ou disponibilidade.",
+            cuidado: "Evite responder com muitas justificativas. Uma resposta curta e clara costuma funcionar melhor nesse tipo de situação.",
+            proximos_passos: [
+                "Confirmar presença, disponibilidade ou entendimento.",
+                "Responder com uma informação concreta.",
+                "Se algo estiver incerto, fazer uma pergunta curta de confirmação."
+            ],
+            sugestoes: [
+                {
+                    rotulo: "Neutra",
+                    texto: "Entendi. Vou me organizar para isso e confirmo os detalhes necessários."
+                },
+                {
+                    rotulo: "Assertiva",
+                    texto: "Sim, posso seguir com isso. Para garantir que entendi corretamente, o foco é entregar uma resposta clara e objetiva sobre o que foi pedido."
+                },
+                {
+                    rotulo: "Acolhedora",
+                    texto: "Obrigado por avisar. Vou me preparar e confirmar os pontos principais para ficar tudo claro."
+                }
+            ]
+        };
+    }
 
     return {
-        tom: mentionsClass ? "objetivo e urgente" : "neutro com urgência",
+        tom: "ambíguo",
         confianca: "media",
-        explicacao_simples: mentionsClass
-            ? "A pessoa está pedindo uma demonstração clara e objetiva do projeto. Parece haver urgência, mas não dá para concluir que a mensagem é uma bronca só pelo texto."
-            : "A mensagem parece pedir uma resposta objetiva. Vale responder com calma, confirmando o que você entendeu e o próximo passo.",
+        explicacao_simples: "A mensagem não tem contexto suficiente para uma conclusão segura. A melhor resposta é pedir esclarecimento de forma calma e direta.",
         leitura_literal: context.message,
-        leitura_social: mentionsClass
-            ? "Provavelmente esperam que vocês mostrem o app funcionando e expliquem, de forma simples, o que é, como funciona e qual problema resolve."
-            : "Provavelmente esperam uma resposta objetiva, com status do que está pronto e do que ainda falta.",
-        cuidado: mentionsValidation
-            ? "Não apresente a ferramenta como diagnóstico. Explique que é um apoio de comunicação e cite a validação com profissional da área."
-            : "Evite responder se justificando demais. Prefira confirmar presença, objetivo da apresentação e próximo passo.",
+        leitura_social: "Pode haver uma expectativa ou cobrança implícita, mas faltam detalhes. Pedir contexto evita responder de forma errada.",
+        cuidado: "Não assuma automaticamente que a pessoa está com raiva. Também não aceite culpa antes de entender a situação.",
         proximos_passos: [
-            "Confirmar que a demonstração principal já está funcionando.",
-            "Preparar uma explicação curta: o que é, como funciona e o que resolve.",
-            "Separar um exemplo realista para mostrar antes e depois da interpretação."
+            "Perguntar qual parte a pessoa quer esclarecer.",
+            "Responder em tom calmo e curto.",
+            "Só tomar uma decisão depois de entender melhor o contexto."
         ],
         sugestoes: [
             {
                 rotulo: "Neutra",
-                texto: "Sim, vamos apresentar hoje. Vamos mostrar o app funcionando e explicar de forma objetiva o que é, como funciona e qual problema resolve."
+                texto: "Entendi. Pode me explicar melhor o que você quis dizer para eu responder da forma certa?"
             },
             {
                 rotulo: "Assertiva",
-                texto: "Vamos levar uma demonstração direta do produto, com um exemplo de uso e os 5 slides organizados nesses três pontos: o que é, como funciona e o que resolve."
+                texto: "Quero responder com clareza, mas preciso entender melhor a situação antes. Qual ponto exatamente te incomodou?"
             },
             {
                 rotulo: "Acolhedora",
-                texto: "Obrigado pela orientação. Vamos organizar a apresentação com esses pontos e mostrar uma situação prática para ficar claro como o Social Interpreter ajuda o usuário."
+                texto: "Quero entender melhor para não interpretar errado. Pode me contar o que aconteceu do seu ponto de vista?"
             }
         ]
     };
