@@ -47,7 +47,7 @@
                 </button>
                 <button class="inline-flex h-10 items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 text-sm font-bold text-slate-700 hover:bg-slate-50" type="button" onclick="openSettings()">
                     <span class="material-symbols-outlined text-[20px]">key</span>
-                    <span class="hidden sm:inline">API</span>
+                    <span class="hidden sm:inline">IA</span>
                 </button>
             </nav>
         </div>
@@ -165,7 +165,7 @@
                     <span class="material-symbols-outlined text-primary">shield_lock</span>
                     Privacidade no MVP
                 </div>
-                <p>O texto fica no navegador até você enviar para a IA. Não há banco de dados neste protótipo. Para áudio, a transcrição usa a API configurada.</p>
+                <p>O texto fica no navegador até você pedir a análise. Não há banco de dados neste protótipo. Para áudio, a transcrição usa a conexão de IA configurada.</p>
             </div>
         </section>
 
@@ -257,8 +257,8 @@
         <form method="dialog" class="border-b border-slate-200 p-5">
             <div class="flex items-start justify-between gap-4">
                 <div>
-                    <h2 class="text-xl font-extrabold">Configurar API</h2>
-                    <p class="mt-1 text-sm leading-6 text-slate-600">Cole sua chave Groq para usar a IA real. Sem chave, o modo demo continua funcionando para apresentação.</p>
+                    <h2 class="text-xl font-extrabold">Configurar IA</h2>
+                    <p class="mt-1 text-sm leading-6 text-slate-600">Cole sua chave de acesso Groq para usar a IA real. Sem chave, o modo demo continua funcionando para apresentação.</p>
                 </div>
                 <button class="icon-button" type="submit" title="Fechar">
                     <span class="material-symbols-outlined">close</span>
@@ -267,7 +267,7 @@
         </form>
         <div class="space-y-4 p-5">
             <div>
-                <label class="form-label" for="api-key">Chave Groq</label>
+                <label class="form-label" for="api-key">Chave de acesso Groq</label>
                 <input id="api-key" class="field" type="password" autocomplete="off" placeholder="gsk_..." />
             </div>
             <div>
@@ -282,7 +282,7 @@
             </div>
             <div class="flex flex-col gap-3 sm:flex-row">
                 <button class="h-11 flex-1 rounded-lg bg-primary px-4 font-bold text-white hover:bg-blue-700" type="button" onclick="saveSettings()">Salvar chave</button>
-                <button class="h-11 flex-1 rounded-lg border border-blue-200 bg-blue-50 px-4 font-bold text-primary hover:bg-blue-100" type="button" onclick="testApiKey()">Testar API</button>
+                <button class="h-11 flex-1 rounded-lg border border-blue-200 bg-blue-50 px-4 font-bold text-primary hover:bg-blue-100" type="button" onclick="testApiKey()">Testar conexão</button>
                 <button class="h-11 flex-1 rounded-lg border border-slate-200 bg-white px-4 font-bold text-slate-700 hover:bg-slate-50" type="button" onclick="clearSettings()">Remover chave</button>
             </div>
         </div>
@@ -290,7 +290,7 @@
 
     <div id="toast" class="toast hidden" role="status"></div>
     <script src="config.local.js"></script>
-    <script src="app.js"></script>
+    <script src="app.js?v=20260617-no-api-copy"></script>
 </body>
 
 </html>

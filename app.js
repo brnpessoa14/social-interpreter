@@ -96,12 +96,12 @@ async function testApiKey() {
         return;
     }
 
-    showToast("Testando a API...");
+    showToast("Testando a conexão...");
     try {
         await callGroq("Responda somente com {\"ok\":true}.", { apiKey: key, model });
-        showToast("API funcionando. Pode salvar e apresentar.");
+        showToast("Conexão funcionando. Pode salvar e apresentar.");
     } catch (error) {
-        showToast(error.message || "Não foi possível testar a API.");
+        showToast(error.message || "Não foi possível testar a conexão.");
     }
 }
 
@@ -157,7 +157,7 @@ async function startAnalysis() {
             ? await callGroq(buildPrompt(context), settings)
             : await getDemoResult(context);
 
-        renderResults(result, context, !settings.apiKey);
+        renderResults(sanitizeResultForLayUser(result), context, !settings.apiKey);
     } catch (error) {
         console.error(error);
         renderError(error);
@@ -206,6 +206,8 @@ Regras:
 - Use português brasileiro.
 - Use linguagem simples, sem jargões.
 - Não dê diagnóstico nem conselho terapêutico.
+- Nunca mencione detalhes técnicos, nomes de integração, nomes de arquivo, formato interno, código, bastidores do sistema ou modo de apresentação.
+- Se precisar falar sobre funcionamento técnico, use termos simples como "ferramenta", "análise", "demonstração" ou "conexão".
 - Respostas devem ser seguras, respeitosas e aplicáveis em contexto acadêmico/profissional.
 - Se houver risco de assédio, saúde, crise, contrato ou direito, oriente validar com profissional da área.`;
 }
@@ -235,8 +237,8 @@ async function callGroq(prompt, settings) {
     if (!response.ok) {
         const data = await response.json().catch(() => ({}));
         const message = data?.error?.message || `HTTP ${response.status}`;
-        if (response.status === 401) throw new Error("Chave de API inválida. Abra API e cole uma chave Groq válida.");
-        if (response.status === 429) throw new Error("Limite da API atingido. Aguarde um pouco ou use outra chave.");
+        if (response.status === 401) throw new Error("Chave de acesso inválida. Abra IA e cole uma chave Groq válida.");
+        if (response.status === 429) throw new Error("Limite de uso atingido. Aguarde um pouco ou use outra chave.");
         throw new Error(message);
     }
 
@@ -244,6 +246,44 @@ async function callGroq(prompt, settings) {
     const raw = data?.choices?.[0]?.message?.content;
     if (!raw) throw new Error("A IA respondeu vazio. Tente novamente.");
     return parseJsonResponse(raw);
+}
+
+function sanitizeResultForLayUser(data) {
+    const clean = JSON.parse(JSON.stringify(data || {}));
+    const cleanText = (value) => sanitizeTechnicalTerms(String(value || ""));
+
+    clean.tom = cleanText(clean.tom);
+    clean.confianca = cleanText(clean.confianca);
+    clean.explicacao_simples = cleanText(clean.explicacao_simples);
+    clean.leitura_social = cleanText(clean.leitura_social);
+    clean.cuidado = cleanText(clean.cuidado);
+    clean.proximos_passos = Array.isArray(clean.proximos_passos)
+        ? clean.proximos_passos.map(cleanText)
+        : [];
+    clean.sugestoes = Array.isArray(clean.sugestoes)
+        ? clean.sugestoes.map((suggestion) => ({
+            ...suggestion,
+            rotulo: cleanText(suggestion.rotulo),
+            texto: cleanText(suggestion.texto)
+        }))
+        : [];
+
+    return clean;
+}
+
+function sanitizeTechnicalTerms(text) {
+    return text
+        .replace(/\bAPI\b/gi, "ferramenta")
+        .replace(/\bAPIs\b/gi, "ferramentas")
+        .replace(/\bbackend\b/gi, "parte interna")
+        .replace(/\bfrontend\b/gi, "tela")
+        .replace(/\bprompt\b/gi, "instrução")
+        .replace(/\bJSON\b/gi, "resposta")
+        .replace(/\btokens?\b/gi, "uso")
+        .replace(/\bmodo demo\b/gi, "modo de apresentação")
+        .replace(/\bfluxo da ferramenta\b/gi, "funcionamento da ferramenta")
+        .replace(/\bproblema técnico\b/gi, "ponto a ajustar")
+        .replace(/\bcorrigir a ferramenta\b/gi, "ajustar a demonstração");
 }
 
 function parseJsonResponse(raw) {
@@ -519,7 +559,7 @@ async function handleGenericUpload(event) {
 async function transcribeAudio(file) {
     const { apiKey } = getSettings();
     if (!apiKey) {
-        throw new Error("Para transcrever áudio enviado, abra API e salve uma chave Groq.");
+        throw new Error("Para transcrever áudio enviado, abra IA e salve uma chave Groq.");
     }
 
     const formData = new FormData();
