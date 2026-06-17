@@ -59,6 +59,24 @@ Modelos recomendados em junho de 2026:
 
 Observação importante: neste MVP, a chave fica no `localStorage` do navegador. Para produto real, use um backend para proteger a chave e evitar exposição no front-end.
 
+### Chave padrão local
+
+Para deixar uma chave pré-configurada no seu computador sem subir segredo para o GitHub:
+
+1. Copie `config.example.js` para `config.local.js`.
+2. Troque `gsk_COLE_SUA_CHAVE_AQUI` pela sua chave Groq.
+3. Abra o app normalmente.
+
+`config.local.js` está no `.gitignore`, então não entra no commit.
+
+Também é possível importar uma chave uma única vez por link usando fragmento de URL:
+
+```text
+https://brnpessoa14.github.io/social-interpreter/#groq_key=SUA_CHAVE_AQUI
+```
+
+Ao carregar, o app salva a chave no navegador e remove o fragmento da barra de endereço. Use isso apenas em canais privados.
+
 ## Modo demo
 
 Se nenhuma chave for configurada, o app entra em modo demo. Isso garante que a apresentação funcione mesmo se a API estiver fora, sem crédito ou com limite de uso.

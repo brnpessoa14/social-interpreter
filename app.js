@@ -12,10 +12,31 @@ let lastResult = null;
 let lastContext = null;
 
 function getSettings() {
+    const localConfig = window.SOCIAL_INTERPRETER_CONFIG || {};
     return {
-        apiKey: localStorage.getItem(STORAGE_KEYS.groqApiKey) || "",
-        model: localStorage.getItem(STORAGE_KEYS.textModel) || DEFAULT_MODEL
+        apiKey: localStorage.getItem(STORAGE_KEYS.groqApiKey) || localConfig.groqApiKey || "",
+        model: localStorage.getItem(STORAGE_KEYS.textModel) || localConfig.textModel || DEFAULT_MODEL
     };
+}
+
+function importKeyFromUrlHash() {
+    const hash = window.location.hash.replace(/^#/, "");
+    if (!hash) return;
+
+    const params = new URLSearchParams(hash);
+    const key = (params.get("groq_key") || params.get("api_key") || "").trim();
+    const model = (params.get("model") || DEFAULT_MODEL).trim();
+
+    if (!key) return;
+    if (!key.startsWith("gsk_")) {
+        showToast("Chave no link ignorada: formato inválido.");
+        return;
+    }
+
+    localStorage.setItem(STORAGE_KEYS.groqApiKey, key);
+    localStorage.setItem(STORAGE_KEYS.textModel, model);
+    history.replaceState(null, document.title, window.location.pathname + window.location.search);
+    showToast("Chave importada para este navegador.");
 }
 
 function updateApiStatus() {
@@ -557,6 +578,7 @@ function updateCharCount() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+    importKeyFromUrlHash();
     updateApiStatus();
     updateCharCount();
     document.getElementById("message").addEventListener("input", updateCharCount);
